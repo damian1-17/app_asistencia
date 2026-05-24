@@ -31,8 +31,10 @@ api.interceptors.response.use(
         await api.post('/auth/refresh')
         return api(originalRequest)
       } catch {
-        // Si el refresh falla → ir al login
-        window.location.href = '/login'
+        // Si el refresh falla y no estamos en login → ir al login
+        if (window.location.pathname !== '/login') {
+          window.location.href = '/login'
+        }
       }
     }
     return Promise.reject(error)
