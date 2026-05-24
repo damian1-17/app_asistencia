@@ -1,10 +1,5 @@
 <template>
   <div class="auth-page">
-    <div class="auth-bg">
-      <div class="auth-orb orb-1"></div>
-      <div class="auth-orb orb-2"></div>
-    </div>
-
     <div class="auth-container">
       <RouterLink to="/" class="auth-logo">
         <div class="logo-icon">M</div>
@@ -12,12 +7,13 @@
       </RouterLink>
 
       <div class="auth-card glass">
-        <!-- Step 1: Solicitar código -->
         <div v-if="step === 1">
           <div class="auth-card-header">
-            <div class="step-icon-wrap">📧</div>
+            <div class="step-icon-wrap">
+              <AppIcon name="mail" size="24" />
+            </div>
             <h1 class="auth-title">Recuperar acceso</h1>
-            <p class="auth-subtitle">Ingresa tu email y te enviaremos un código de 6 dígitos</p>
+            <p class="auth-subtitle">Ingresa tu email y enviaremos un codigo de 6 digitos.</p>
           </div>
 
           <Transition name="fade">
@@ -38,18 +34,22 @@
               />
             </div>
             <button type="submit" class="btn btn-primary btn-full btn-lg" :disabled="loading" id="forgot-submit-btn">
-              <span v-if="!loading">📨 Enviar código</span>
+              <span v-if="!loading">
+                <AppIcon name="mail" size="18" />
+                <span>Enviar codigo</span>
+              </span>
               <span v-else class="flex items-center gap-sm"><div class="spinner spinner-sm"></div> Enviando...</span>
             </button>
           </form>
         </div>
 
-        <!-- Step 2: Resetear contraseña -->
         <div v-if="step === 2">
           <div class="auth-card-header">
-            <div class="step-icon-wrap">🔐</div>
-            <h1 class="auth-title">Nueva contraseña</h1>
-            <p class="auth-subtitle">Ingresa el código recibido y tu nueva contraseña</p>
+            <div class="step-icon-wrap">
+              <AppIcon name="shield" size="24" />
+            </div>
+            <h1 class="auth-title">Nueva contrasena</h1>
+            <p class="auth-subtitle">Ingresa el codigo recibido y define tu nueva contrasena.</p>
           </div>
 
           <Transition name="fade">
@@ -58,7 +58,7 @@
 
           <form @submit.prevent="resetPassword" id="reset-form">
             <div class="form-group">
-              <label class="form-label" for="reset-code">Código de 6 dígitos</label>
+              <label class="form-label" for="reset-code">Codigo de 6 digitos</label>
               <input
                 id="reset-code"
                 v-model="code"
@@ -72,51 +72,64 @@
               />
             </div>
             <div class="form-group">
-              <label class="form-label" for="reset-password">Nueva contraseña</label>
+              <label class="form-label" for="reset-password">Nueva contrasena</label>
               <input
                 id="reset-password"
                 v-model="newPassword"
                 type="password"
                 class="form-input"
-                placeholder="Mínimo 8 caracteres"
+                placeholder="Minimo 8 caracteres"
                 minlength="8"
                 required
               />
             </div>
             <div class="form-group">
-              <label class="form-label" for="reset-confirm">Confirmar contraseña</label>
+              <label class="form-label" for="reset-confirm">Confirmar contrasena</label>
               <input
                 id="reset-confirm"
                 v-model="confirmPassword"
                 type="password"
                 class="form-input"
                 :class="{ error: confirmError }"
-                placeholder="Repite la contraseña"
+                placeholder="Repite la contrasena"
                 required
               />
-              <span v-if="confirmError" class="form-error">⚠ Las contraseñas no coinciden</span>
+              <span v-if="confirmError" class="form-error">
+                <AppIcon name="warning" size="14" />
+                <span>Las contrasenas no coinciden</span>
+              </span>
             </div>
             <button type="submit" class="btn btn-primary btn-full btn-lg" :disabled="loading" id="reset-submit-btn">
-              <span v-if="!loading">✅ Cambiar contraseña</span>
+              <span v-if="!loading">
+                <AppIcon name="check-circle" size="18" />
+                <span>Cambiar contrasena</span>
+              </span>
               <span v-else class="flex items-center gap-sm"><div class="spinner spinner-sm"></div> Cambiando...</span>
             </button>
           </form>
 
-          <button class="btn btn-ghost btn-full mt-md" @click="step = 1" id="reset-back-btn">← Volver</button>
+          <button class="btn btn-ghost btn-full mt-md" @click="step = 1" id="reset-back-btn">
+            <AppIcon name="chevron-left" size="16" />
+            <span>Volver</span>
+          </button>
         </div>
 
-        <!-- Step 3: Éxito -->
         <div v-if="step === 3" class="success-step">
-          <div class="success-icon">🎉</div>
-          <h2 class="auth-title">¡Contraseña cambiada!</h2>
-          <p class="auth-subtitle">Ya puedes iniciar sesión con tu nueva contraseña</p>
+          <div class="success-icon">
+            <AppIcon name="check-circle" size="40" />
+          </div>
+          <h2 class="auth-title">Contrasena actualizada</h2>
+          <p class="auth-subtitle">Ya puedes iniciar sesion con tu nueva credencial.</p>
           <RouterLink to="/login" class="btn btn-primary btn-full btn-lg mt-xl" id="success-goto-login">
-            Ir al inicio de sesión
+            Ir al inicio de sesion
           </RouterLink>
         </div>
 
         <div class="auth-footer">
-          <RouterLink to="/login" class="back-link" id="forgot-back-login">← Volver al login</RouterLink>
+          <RouterLink to="/login" class="back-link" id="forgot-back-login">
+            <AppIcon name="chevron-left" size="16" />
+            <span>Volver al login</span>
+          </RouterLink>
         </div>
       </div>
     </div>
@@ -124,9 +137,10 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import authApi from '@/api/auth.api'
 import AlertMessage from '@/components/shared/AlertMessage.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const step = ref(1)
 const email = ref('')
@@ -137,20 +151,21 @@ const loading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
 
-const confirmError = computed(
-  () => confirmPassword.value.length > 0 && confirmPassword.value !== newPassword.value,
-)
+const confirmError = computed(() => confirmPassword.value.length > 0 && confirmPassword.value !== newPassword.value)
 
 async function requestCode() {
   loading.value = true
   errorMsg.value = ''
   successMsg.value = ''
+
   try {
     const res = await authApi.requestPasswordRecovery(email.value)
-    successMsg.value = res.message ?? 'Código enviado. Revisa tu bandeja de entrada.'
-    setTimeout(() => { step.value = 2 }, 1500)
+    successMsg.value = res.message ?? 'Codigo enviado. Revisa tu bandeja de entrada.'
+    setTimeout(() => {
+      step.value = 2
+    }, 1500)
   } catch (err: any) {
-    errorMsg.value = err?.response?.data?.message ?? 'Error al enviar el código'
+    errorMsg.value = err?.response?.data?.message ?? 'Error al enviar el codigo'
   } finally {
     loading.value = false
   }
@@ -158,13 +173,15 @@ async function requestCode() {
 
 async function resetPassword() {
   if (confirmError.value) return
+
   loading.value = true
   errorMsg.value = ''
+
   try {
     await authApi.resetPassword(email.value, code.value, newPassword.value)
     step.value = 3
   } catch (err: any) {
-    errorMsg.value = err?.response?.data?.message ?? 'Código inválido o expirado'
+    errorMsg.value = err?.response?.data?.message ?? 'Codigo invalido o expirado'
   } finally {
     loading.value = false
   }
@@ -177,56 +194,22 @@ async function resetPassword() {
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
   padding: var(--spacing-xl);
 }
 
-.auth-bg {
-  position: absolute;
-  inset: 0;
-  pointer-events: none;
-}
-
-.auth-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, rgba(99,102,241,0.2) 0%, transparent 70%);
-  top: -150px;
-  left: -100px;
-}
-
-.orb-2 {
-  width: 350px;
-  height: 350px;
-  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
-  bottom: -100px;
-  right: -50px;
-}
-
 .auth-container {
-  position: relative;
-  z-index: 1;
   width: 100%;
-  max-width: 440px;
+  max-width: 460px;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: var(--spacing-xl);
-  animation: slideInUp 0.5s ease;
 }
 
 .auth-logo {
   display: flex;
   align-items: center;
   gap: var(--spacing-sm);
-  text-decoration: none;
   font-size: var(--font-size-xl);
   font-weight: 700;
   color: var(--color-text-primary);
@@ -235,15 +218,12 @@ async function resetPassword() {
 .logo-icon {
   width: 40px;
   height: 40px;
-  background: var(--gradient-accent);
   border-radius: var(--radius-md);
+  background: var(--gradient-accent);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 1.2rem;
-  color: white;
-  box-shadow: 0 0 20px var(--color-accent-glow);
 }
 
 .logo-accent {
@@ -255,13 +235,21 @@ async function resetPassword() {
   padding: var(--spacing-2xl);
 }
 
-.step-icon-wrap {
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-md);
-}
-
 .auth-card-header {
   margin-bottom: var(--spacing-xl);
+}
+
+.step-icon-wrap,
+.success-icon {
+  width: 54px;
+  height: 54px;
+  border-radius: 1rem;
+  background: rgba(0, 169, 224, 0.12);
+  color: #8cdfff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: var(--spacing-md);
 }
 
 .auth-title {
@@ -272,19 +260,21 @@ async function resetPassword() {
 
 .auth-subtitle {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
+}
+
+.btn span,
+.back-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .success-step {
   text-align: center;
-  padding: var(--spacing-xl) 0;
 }
 
 .success-icon {
-  font-size: 4rem;
-  margin-bottom: var(--spacing-lg);
-  animation: float 3s ease-in-out infinite;
-  display: block;
+  margin: 0 auto var(--spacing-lg);
 }
 
 .auth-footer {
@@ -293,12 +283,6 @@ async function resetPassword() {
 }
 
 .back-link {
-  font-size: var(--font-size-sm);
   color: var(--color-text-muted);
-  text-decoration: none;
-}
-
-.back-link:hover {
-  color: var(--color-accent);
 }
 </style>

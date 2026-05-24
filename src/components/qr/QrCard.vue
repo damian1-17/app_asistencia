@@ -1,15 +1,18 @@
 <template>
-  <div class="qr-card" :class="{ 'qr-used': qr.usado, 'qr-inactive': !qr.activo }">
-    <!-- Header del tipo -->
-    <div class="qr-header">
-      <div class="qr-tipo-badge">
-        <span class="qr-tipo-icon">{{ tipoIcon }}</span>
-        <span>{{ qr.tipoQr?.nombre ?? 'QR Evento' }}</span>
+  <article class="qr-card" :class="{ 'qr-used': qr.usado, 'qr-inactive': !qr.activo }">
+    <header class="qr-header">
+      <div class="qr-type">
+        <div class="qr-type-icon">
+          <AppIcon :name="tipoIcon" size="18" />
+        </div>
+        <div>
+          <span class="qr-type-label">{{ qr.tipoQr?.codigo ?? 'QR' }}</span>
+          <h3>{{ qr.tipoQr?.nombre ?? 'QR Evento' }}</h3>
+        </div>
       </div>
       <span class="badge" :class="estadoBadgeClass">{{ estadoLabel }}</span>
-    </div>
+    </header>
 
-    <!-- Código QR generado -->
     <div class="qr-image-wrap">
       <div v-if="generating" class="qr-loading">
         <div class="spinner spinner-sm"></div>
@@ -19,59 +22,59 @@
         ref="canvasRef"
         class="qr-canvas"
         :id="`qr-canvas-${qr.idUsuarioQr}`"
-        :aria-label="`Código QR: ${qr.tipoQr?.nombre}`"
+        :aria-label="`Codigo QR: ${qr.tipoQr?.nombre}`"
       />
       <div v-if="qr.usado" class="qr-used-overlay">
-        <span>✓ Usado</span>
+        <AppIcon name="check-circle" size="18" />
+        <span>Usado</span>
       </div>
     </div>
 
-    <!-- Descripción -->
     <p v-if="qr.tipoQr?.descripcion" class="qr-desc">{{ qr.tipoQr.descripcion }}</p>
 
-    <!-- Metadata -->
     <div class="qr-meta">
       <div class="meta-item">
-        <span class="meta-label">Token</span>
-        <span class="meta-value token-value" :title="qr.token">{{ shortToken }}</span>
+        <span>Token</span>
+        <strong class="token-value" :title="qr.token">{{ shortToken }}</strong>
       </div>
       <div v-if="qr.expiracion" class="meta-item">
-        <span class="meta-label">Vence</span>
-        <span class="meta-value">{{ formatDate(qr.expiracion) }}</span>
+        <span>Vence</span>
+        <strong>{{ formatDate(qr.expiracion) }}</strong>
       </div>
       <div v-if="qr.fechaUso" class="meta-item">
-        <span class="meta-label">Usado el</span>
-        <span class="meta-value">{{ formatDate(qr.fechaUso) }}</span>
+        <span>Usado el</span>
+        <strong>{{ formatDate(qr.fechaUso) }}</strong>
       </div>
     </div>
 
-    <!-- Acciones -->
     <div class="qr-actions">
       <button
-        class="btn btn-primary btn-sm"
+        class="btn btn-primary btn-sm qr-download"
         :id="`btn-download-qr-${qr.idUsuarioQr}`"
         @click="downloadQr"
         :disabled="generating || !qr.activo"
         :title="!qr.activo ? 'QR inactivo' : 'Descargar QR'"
       >
-        ⬇ Descargar QR
+        <AppIcon name="download" size="16" />
+        <span>Descargar</span>
       </button>
       <button
-        class="btn btn-ghost btn-sm btn-icon"
+        class="btn btn-ghost btn-sm btn-icon qr-copy"
         :id="`btn-copy-token-${qr.idUsuarioQr}`"
         @click="copyToken"
-        :title="copied ? '¡Copiado!' : 'Copiar token'"
+        :title="copied ? 'Copiado' : 'Copiar token'"
       >
-        {{ copied ? '✓' : '📋' }}
+        <AppIcon :name="copied ? 'check-circle' : 'clipboard'" size="16" />
       </button>
     </div>
-  </div>
+  </article>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { computed, onMounted, ref, watch } from 'vue'
 import QRCode from 'qrcode'
 import type { UsuarioQr } from '@/api/qr.api'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const props = defineProps<{ qr: UsuarioQr }>()
 
@@ -79,19 +82,18 @@ const canvasRef = ref<HTMLCanvasElement | null>(null)
 const generating = ref(false)
 const copied = ref(false)
 
-// ─── QR content: stringified JSON del token ───
-const qrContent = computed(() => {
-  return JSON.stringify({
+const qrContent = computed(() =>
+  JSON.stringify({
     token: props.qr.token,
     idUsuario: props.qr.idUsuario,
     idTipoQr: props.qr.idTipoQr,
     codigoTipo: props.qr.tipoQr?.codigo ?? '',
-  })
-})
+  }),
+)
 
 const shortToken = computed(() => {
-  const t = props.qr.token
-  return t ? `${t.slice(0, 8)}...${t.slice(-4)}` : '-'
+  const token = props.qr.token
+  return token ? `${token.slice(0, 8)}...${token.slice(-4)}` : '-'
 })
 
 const estadoLabel = computed(() => {
@@ -108,23 +110,25 @@ const estadoBadgeClass = computed(() => {
 
 const tipoIcon = computed(() => {
   const code = props.qr.tipoQr?.codigo?.toUpperCase() ?? ''
-  if (code.includes('ALMUERZO') || code.includes('COMIDA')) return '🍽'
-  if (code.includes('ACCESO') || code.includes('ENTRADA')) return '🎫'
-  if (code.includes('TALLER') || code.includes('WORKSHOP')) return '🛠'
-  if (code.includes('CERT')) return '🏆'
-  return '📱'
+  if (code.includes('ALMUERZO') || code.includes('COMIDA')) return 'grid'
+  if (code.includes('ACCESO') || code.includes('ENTRADA')) return 'ticket'
+  if (code.includes('TALLER') || code.includes('WORKSHOP')) return 'sparkles'
+  if (code.includes('CERT')) return 'check-circle'
+  return 'qr'
 })
 
 async function generateQr() {
   if (!canvasRef.value) return
+
   generating.value = true
+
   try {
     await QRCode.toCanvas(canvasRef.value, qrContent.value, {
       width: 220,
       margin: 2,
       color: {
-        dark: '#0B0F1A',
-        light: '#F8FAFC',
+        dark: '#0d1b2c',
+        light: '#f5f7fb',
       },
       errorCorrectionLevel: 'H',
     })
@@ -137,6 +141,7 @@ async function generateQr() {
 
 function downloadQr() {
   if (!canvasRef.value) return
+
   const link = document.createElement('a')
   link.download = `QR_${props.qr.tipoQr?.codigo ?? 'evento'}_${props.qr.token.slice(0, 8)}.png`
   link.href = canvasRef.value.toDataURL('image/png')
@@ -147,8 +152,12 @@ async function copyToken() {
   try {
     await navigator.clipboard.writeText(props.qr.token)
     copied.value = true
-    setTimeout(() => { copied.value = false }, 2000)
-  } catch {/* noop */}
+    setTimeout(() => {
+      copied.value = false
+    }, 2000)
+  } catch {
+    // noop
+  }
 }
 
 function formatDate(dateStr: string) {
@@ -165,77 +174,82 @@ watch(qrContent, generateQr)
 
 <style scoped>
 .qr-card {
-  background: var(--color-bg-card);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-lg);
+  position: relative;
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-md);
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
-}
-
-.qr-card::before {
-  content: '';
-  position: absolute;
-  inset: 0;
-  background: var(--gradient-accent);
-  opacity: 0;
-  transition: opacity var(--transition-normal);
-  border-radius: inherit;
+  gap: 1rem;
+  padding: 1.1rem;
+  border-radius: 1.55rem;
+  background: linear-gradient(145deg, rgba(18, 33, 53, 0.95), rgba(9, 18, 32, 0.98));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 22px 36px rgba(0, 0, 0, 0.18);
+  transition: transform var(--transition-normal), border-color var(--transition-normal);
 }
 
 .qr-card:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-accent);
   transform: translateY(-4px);
-}
-
-.qr-card:hover::before {
-  opacity: 0.03;
+  border-color: rgba(0, 169, 224, 0.22);
 }
 
 .qr-card.qr-inactive {
-  opacity: 0.6;
+  opacity: 0.64;
 }
 
-.qr-header {
+.qr-header,
+.qr-type,
+.qr-actions,
+.meta-item {
   display: flex;
   align-items: center;
+}
+
+.qr-header,
+.meta-item {
   justify-content: space-between;
-  gap: var(--spacing-sm);
 }
 
-.qr-tipo-badge {
+.qr-type {
+  gap: 0.8rem;
+}
+
+.qr-type-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 1rem;
+  background: rgba(0, 169, 224, 0.12);
+  color: #8cdfff;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
+  justify-content: center;
 }
 
-.qr-tipo-icon {
-  font-size: 1.2rem;
+.qr-type-label {
+  display: block;
+  color: var(--color-text-muted);
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  margin-bottom: 0.15rem;
+}
+
+.qr-type h3 {
+  font-size: 1rem;
 }
 
 .qr-image-wrap {
   position: relative;
+  min-height: 240px;
+  padding: 1rem;
+  border-radius: 1.25rem;
+  background: #f5f7fb;
   display: flex;
   align-items: center;
   justify-content: center;
-  background: #F8FAFC;
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-md);
-  min-height: 240px;
 }
 
 .qr-canvas {
-  border-radius: var(--radius-sm);
   display: block;
+  border-radius: 0.85rem;
 }
 
 .qr-loading {
@@ -249,65 +263,61 @@ watch(qrContent, generateQr)
 .qr-used-overlay {
   position: absolute;
   inset: 0;
-  background: rgba(245, 158, 11, 0.85);
-  border-radius: var(--radius-lg);
+  border-radius: 1.25rem;
+  background: rgba(245, 158, 11, 0.86);
+  color: white;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: var(--font-size-2xl);
+  gap: 0.45rem;
   font-weight: 800;
-  color: white;
-  letter-spacing: 0.1em;
-  backdrop-filter: blur(2px);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
 
 .qr-desc {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  line-height: 1.5;
+  color: var(--color-text-secondary);
+  font-size: 0.86rem;
 }
 
 .qr-meta {
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-xs);
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-sm) var(--spacing-md);
+  padding: 0.95rem 1rem;
+  border-radius: 1.15rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  display: grid;
+  gap: 0.55rem;
 }
 
-.meta-item {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--spacing-sm);
-}
-
-.meta-label {
-  font-size: var(--font-size-xs);
+.meta-item span {
   color: var(--color-text-muted);
-  font-weight: 500;
+  font-size: 0.76rem;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
 }
 
-.meta-value {
-  font-size: var(--font-size-xs);
+.meta-item strong {
   color: var(--color-text-secondary);
   font-family: 'Courier New', monospace;
+  font-size: 0.78rem;
 }
 
 .token-value {
-  color: var(--color-accent);
+  color: #8cdfff !important;
 }
 
 .qr-actions {
-  display: flex;
-  gap: var(--spacing-sm);
-  align-items: center;
+  gap: 0.65rem;
 }
 
-.qr-actions .btn:first-child {
+.qr-download {
   flex: 1;
+}
+
+.qr-copy {
+  width: 42px;
+  height: 42px;
+  padding: 0;
+  justify-content: center;
 }
 </style>

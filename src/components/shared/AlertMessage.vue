@@ -1,13 +1,18 @@
 <template>
   <div class="alert" :class="`alert-${type}`" role="alert">
-    <span class="alert-icon">{{ icon }}</span>
+    <span class="alert-icon">
+      <AppIcon :name="icon" size="16" />
+    </span>
     <span>{{ message }}</span>
-    <button v-if="dismissible" class="alert-close" @click="$emit('dismiss')" aria-label="Cerrar">✕</button>
+    <button v-if="dismissible" class="alert-close" @click="$emit('dismiss')" aria-label="Cerrar">
+      <AppIcon name="x" size="14" />
+    </button>
   </div>
 </template>
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const props = withDefaults(
   defineProps<{
@@ -21,16 +26,22 @@ const props = withDefaults(
 defineEmits<{ dismiss: [] }>()
 
 const icon = computed(() => {
-  const icons = { success: '✓', error: '✕', warning: '⚠', info: 'ℹ' }
+  const icons = {
+    success: 'check-circle',
+    error: 'x',
+    warning: 'warning',
+    info: 'info',
+  } as const
+
   return icons[props.type]
 })
 </script>
 
 <style scoped>
 .alert-icon {
-  font-weight: 700;
   flex-shrink: 0;
-  font-size: 0.9rem;
+  display: inline-flex;
+  margin-top: 1px;
 }
 
 .alert-close {
@@ -40,7 +51,9 @@ const icon = computed(() => {
   cursor: pointer;
   color: inherit;
   opacity: 0.7;
-  font-size: 0.8rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   padding: 0 4px;
   transition: opacity 0.15s;
 }

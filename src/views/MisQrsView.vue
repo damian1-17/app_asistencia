@@ -1,97 +1,89 @@
 <template>
   <div class="mis-qrs-page">
-    <!-- Page header -->
-    <div class="page-header">
+    <section class="page-hero card">
       <div>
-        <h1 class="page-title">📱 Mis Códigos QR</h1>
-        <p class="page-subtitle">Todos tus accesos al evento en un solo lugar</p>
+        <span class="page-kicker">Credenciales digitales</span>
+        <h1 class="page-title">Mis codigos QR</h1>
+        <p class="page-subtitle">Consulta, descarga y controla todos tus accesos desde un mismo panel.</p>
       </div>
       <button class="btn btn-secondary" @click="reload" :disabled="qrStore.loading" id="btn-reload-qrs">
-        <span v-if="!qrStore.loading">↺ Actualizar</span>
-        <span v-else>Cargando...</span>
+        <AppIcon name="refresh" size="16" />
+        <span>{{ qrStore.loading ? 'Cargando...' : 'Actualizar' }}</span>
       </button>
-    </div>
+    </section>
 
-    <!-- Stats bar -->
-    <div class="stats-bar" v-if="!qrStore.loading && misQrs.length > 0">
-      <div class="stat-chip">
-        <span class="chip-label">Total QRs</span>
-        <span class="chip-value accent">{{ misQrs.length }}</span>
-      </div>
-      <div class="stat-chip">
-        <span class="chip-label">Disponibles</span>
-        <span class="chip-value success">{{ qrsDisponibles }}</span>
-      </div>
-      <div class="stat-chip">
-        <span class="chip-label">Usados</span>
-        <span class="chip-value warning">{{ qrsUsados }}</span>
-      </div>
-    </div>
+    <section class="stats-grid" v-if="!qrStore.loading && misQrs.length > 0">
+      <article class="stat-card">
+        <span>Total</span>
+        <strong>{{ misQrs.length }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Disponibles</span>
+        <strong class="success">{{ qrsDisponibles }}</strong>
+      </article>
+      <article class="stat-card">
+        <span>Usados</span>
+        <strong class="warning">{{ qrsUsados }}</strong>
+      </article>
+    </section>
 
-    <!-- Loading state -->
-    <div v-if="qrStore.loading" class="empty-state">
+    <div v-if="qrStore.loading" class="empty-state card-flat">
       <LoadingSpinner text="Cargando tus QRs..." />
     </div>
 
-    <!-- Error state -->
-    <div v-else-if="error" class="empty-state">
+    <div v-else-if="error" class="empty-state card-flat">
       <AlertMessage :message="error" type="error" />
       <button class="btn btn-primary mt-lg" @click="reload">Reintentar</button>
     </div>
 
-    <!-- Empty state -->
-    <div v-else-if="misQrs.length === 0" class="empty-state">
-      <div class="empty-icon">📭</div>
+    <div v-else-if="misQrs.length === 0" class="empty-state card-flat">
+      <div class="empty-icon">
+        <AppIcon name="qr" size="36" />
+      </div>
       <h2 class="empty-title">Sin QRs asignados</h2>
-      <p class="empty-desc">
-        Aún no tienes códigos QR asignados. Contacta al organizador del evento.
-      </p>
+      <p class="empty-desc">Todavia no tienes codigos disponibles. Contacta al organizador para validar tu registro.</p>
     </div>
 
-    <!-- QR Grid -->
     <div v-else class="qr-grid">
-      <QrCard
-        v-for="qr in misQrs"
-        :key="qr.idUsuarioQr"
-        :qr="qr"
-      />
+      <QrCard v-for="qr in misQrs" :key="qr.idUsuarioQr" :qr="qr" />
     </div>
 
-    <!-- Info card -->
-    <div class="info-card glass mt-xl" v-if="!qrStore.loading && misQrs.length > 0">
-      <span class="info-icon">ℹ</span>
+    <div class="info-card card-flat mt-xl" v-if="!qrStore.loading && misQrs.length > 0">
+      <AppIcon name="info" size="18" />
       <p class="text-sm text-secondary">
-        Descarga tus QRs y preséntarlos al staff en el evento. Los QRs marcados como
-        <strong class="text-warning">Usados</strong> ya han sido validados.
+        Descarga tus codigos y presentalos al staff. Los elementos marcados como
+        <strong class="text-warning">usados</strong> ya fueron validados en el evento.
       </p>
     </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import { useQrStore } from '@/stores/qr.store'
 import QrCard from '@/components/qr/QrCard.vue'
 import LoadingSpinner from '@/components/shared/LoadingSpinner.vue'
 import AlertMessage from '@/components/shared/AlertMessage.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const authStore = useAuthStore()
 const qrStore = useQrStore()
-
 const error = ref('')
 
 const misQrs = computed(() => qrStore.misQrs)
-const qrsDisponibles = computed(() => misQrs.value.filter((q) => !q.usado && q.activo).length)
-const qrsUsados = computed(() => misQrs.value.filter((q) => q.usado).length)
+const qrsDisponibles = computed(() => misQrs.value.filter((qr) => !qr.usado && qr.activo).length)
+const qrsUsados = computed(() => misQrs.value.filter((qr) => qr.usado).length)
 
 async function reload() {
   if (!authStore.user?.idUsuario) return
+
   error.value = ''
+
   try {
     await qrStore.fetchMisQrs(authStore.user.idUsuario)
   } catch (err: any) {
-    error.value = err?.response?.data?.message ?? 'Error al cargar los QRs'
+    error.value = err?.response?.data?.message ?? 'Error al cargar los codigos QR'
   }
 }
 
@@ -103,107 +95,118 @@ onMounted(reload)
   animation: fadeIn 0.4s ease;
 }
 
-.page-header {
+.page-hero {
   display: flex;
-  align-items: flex-start;
   justify-content: space-between;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-  flex-wrap: wrap;
+  gap: 1rem;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.page-kicker {
+  display: inline-block;
+  margin-bottom: 0.5rem;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: #8cdfff;
 }
 
 .page-title {
-  font-size: var(--font-size-2xl);
-  font-weight: 800;
-  letter-spacing: -0.02em;
-  margin-bottom: var(--spacing-xs);
+  font-size: clamp(2rem, 4vw, 2.7rem);
+  letter-spacing: -0.04em;
+  margin-bottom: 0.35rem;
 }
 
-.page-subtitle {
+.page-subtitle,
+.empty-desc {
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
 }
 
-/* Stats bar */
-.stats-bar {
-  display: flex;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-xl);
-  flex-wrap: wrap;
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  margin-bottom: 1.25rem;
 }
 
-.stat-chip {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-full);
-  padding: 0.375rem 1rem;
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+.stat-card {
+  padding: 1rem 1.1rem;
+  border-radius: 1.25rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.07);
 }
 
-.chip-label {
-  font-size: var(--font-size-xs);
+.stat-card span {
+  display: block;
   color: var(--color-text-muted);
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.1em;
+  font-size: 0.75rem;
+  margin-bottom: 0.25rem;
 }
 
-.chip-value {
-  font-size: var(--font-size-sm);
-  font-weight: 700;
+.stat-card strong {
+  font-size: 1.65rem;
 }
 
-.chip-value.accent  { color: var(--color-accent); }
-.chip-value.success { color: var(--color-success); }
-.chip-value.warning { color: var(--color-warning); }
+.success {
+  color: var(--color-success);
+}
 
-/* QR Grid */
+.warning {
+  color: var(--color-warning);
+}
+
 .qr-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
 }
 
-/* Empty state */
 .empty-state {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: var(--spacing-3xl);
+  padding: 3rem 1.25rem;
   text-align: center;
 }
 
 .empty-icon {
-  font-size: 4rem;
-  margin-bottom: var(--spacing-lg);
-  animation: float 4s ease-in-out infinite;
+  width: 84px;
+  height: 84px;
+  border-radius: 1.4rem;
+  background: rgba(0, 169, 224, 0.1);
+  color: #8cdfff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 1rem;
 }
 
 .empty-title {
-  font-size: var(--font-size-2xl);
-  font-weight: 700;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: 0.45rem;
 }
 
 .empty-desc {
-  color: var(--color-text-secondary);
-  max-width: 400px;
-  line-height: 1.6;
+  max-width: 440px;
 }
 
-/* Info card */
 .info-card {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  padding: var(--spacing-md) var(--spacing-lg);
+  gap: 0.75rem;
 }
 
-.info-icon {
-  font-size: 1.2rem;
-  color: var(--color-accent);
-  flex-shrink: 0;
+@media (max-width: 768px) {
+  .page-hero,
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .page-hero {
+    flex-direction: column;
+  }
 }
 </style>

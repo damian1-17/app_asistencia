@@ -3,38 +3,32 @@
     <AppNavbar />
 
     <div class="dashboard-body">
-      <!-- Sidebar -->
       <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
-        <nav class="sidebar-nav">
+        <div class="sidebar-panel">
           <div class="sidebar-header">
-            <div class="user-info">
-              <div class="user-avatar">{{ userInitial }}</div>
-              <div class="user-details">
-                <p class="user-name">{{ userName }}</p>
-                <p class="user-email">{{ userEmail }}</p>
-              </div>
+            <div class="user-avatar">{{ userInitial }}</div>
+            <div class="user-copy">
+              <strong>{{ userName }}</strong>
+              <span>{{ userEmail }}</span>
             </div>
           </div>
 
-          <hr class="divider" />
+          <div class="sidebar-caption">Navegacion principal</div>
 
-          <ul class="sidebar-links">
-            <li v-for="link in navLinks" :key="link.to">
-              <RouterLink
-                :to="link.to"
-                class="sidebar-link"
-                active-class="sidebar-link-active"
-                :id="`sidebar-${link.id}`"
-                @click="sidebarOpen = false"
-              >
-                <span class="link-icon">{{ link.icon }}</span>
-                <span class="link-label">{{ link.label }}</span>
-                <span v-if="link.badge" class="link-badge badge badge-accent">{{ link.badge }}</span>
-              </RouterLink>
-            </li>
-          </ul>
-
-          <hr class="divider" />
+          <nav class="sidebar-links">
+            <RouterLink
+              v-for="link in navLinks"
+              :key="link.to"
+              :to="link.to"
+              class="sidebar-link"
+              active-class="sidebar-link-active"
+              :id="`sidebar-${link.id}`"
+              @click="sidebarOpen = false"
+            >
+              <AppIcon :name="link.icon" size="18" />
+              <span class="link-label">{{ link.label }}</span>
+            </RouterLink>
+          </nav>
 
           <button
             class="sidebar-link sidebar-logout"
@@ -42,23 +36,23 @@
             id="sidebar-logout-btn"
             :disabled="logoutLoading"
           >
-            <span class="link-icon">🚪</span>
-            <span class="link-label">{{ logoutLoading ? 'Cerrando...' : 'Cerrar sesión' }}</span>
+            <AppIcon name="logout" size="18" />
+            <span class="link-label">{{ logoutLoading ? 'Cerrando...' : 'Cerrar sesion' }}</span>
           </button>
-        </nav>
+        </div>
       </aside>
 
-      <!-- Mobile overlay -->
       <div v-if="sidebarOpen" class="sidebar-overlay" @click="sidebarOpen = false"></div>
 
-      <!-- Main content -->
       <main class="dashboard-main">
-        <!-- Mobile header -->
         <div class="mobile-topbar hide-desktop">
-          <button class="hamburger-btn" @click="sidebarOpen = true" id="dashboard-hamburger">
-            ☰
+          <button class="mobile-menu-btn" @click="sidebarOpen = true" id="dashboard-hamburger">
+            <AppIcon name="menu" size="18" />
           </button>
-          <span class="mobile-page-title">{{ currentPageTitle }}</span>
+          <div>
+            <span class="mobile-label">Dashboard</span>
+            <strong class="mobile-page-title">{{ currentPageTitle }}</strong>
+          </div>
         </div>
 
         <RouterView v-slot="{ Component, route }">
@@ -72,11 +66,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
+import { computed, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useQrStore } from '@/stores/qr.store'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const authStore = useAuthStore()
 const qrStore = useQrStore()
@@ -86,19 +81,19 @@ const route = useRoute()
 const sidebarOpen = ref(false)
 const logoutLoading = ref(false)
 
-const userName = computed(() => authStore.user?.nombre ?? '')
-const userEmail = computed(() => authStore.user?.email ?? '')
+const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
+const userEmail = computed(() => authStore.user?.email ?? 'Sin email')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
 const navLinks = computed(() => [
-  { to: '/dashboard/mis-qrs', icon: '📱', label: 'Mis QRs', id: 'mis-qrs', badge: '' },
-  { to: '/dashboard/agenda', icon: '📅', label: 'Agenda del Evento', id: 'agenda', badge: '' },
-  { to: '/dashboard/perfil', icon: '👤', label: 'Mi Perfil', id: 'perfil', badge: '' },
+  { to: '/dashboard/mis-qrs', icon: 'qr', label: 'Mis QRs', id: 'mis-qrs' },
+  { to: '/dashboard/agenda', icon: 'calendar', label: 'Agenda del evento', id: 'agenda' },
+  { to: '/dashboard/perfil', icon: 'user', label: 'Mi perfil', id: 'perfil' },
 ])
 
 const currentPageTitle = computed(() => {
-  const current = navLinks.value.find((l) => route.path.startsWith(l.to))
-  return current?.label ?? 'Dashboard'
+  const current = navLinks.value.find((link) => route.path.startsWith(link.to))
+  return current?.label ?? 'Panel'
 })
 
 async function handleLogout() {
@@ -116,201 +111,183 @@ async function handleLogout() {
 <style scoped>
 .dashboard-layout {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
 .dashboard-body {
   display: flex;
-  flex: 1;
-  position: relative;
+  align-items: flex-start;
+  gap: 1.25rem;
+  padding: 1.25rem;
 }
 
-/* ─── SIDEBAR ───────────────────────────────────────── */
 .sidebar {
-  width: 260px;
-  flex-shrink: 0;
-  background: var(--color-bg-secondary);
-  border-right: 1px solid var(--color-border-subtle);
-  height: calc(100vh - 64px);
+  width: 290px;
   position: sticky;
-  top: 64px;
-  overflow-y: auto;
+  top: 94px;
+  flex-shrink: 0;
 }
 
-.sidebar-nav {
-  padding: var(--spacing-lg);
-  display: flex;
-  flex-direction: column;
-  gap: var(--spacing-sm);
+.sidebar-panel {
+  border-radius: 1.8rem;
+  padding: 1rem;
+  background: rgba(10, 22, 38, 0.84);
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(16px);
 }
 
 .sidebar-header {
-  padding-bottom: var(--spacing-sm);
-}
-
-.user-info {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
+  gap: 0.85rem;
+  padding: 0.4rem;
+  margin-bottom: 1rem;
 }
 
 .user-avatar {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--gradient-accent);
+  width: 50px;
+  height: 50px;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(0, 169, 224, 0.34), rgba(0, 98, 155, 1));
   display: flex;
   align-items: center;
   justify-content: center;
-  font-weight: 700;
-  font-size: var(--font-size-lg);
-  color: white;
-  flex-shrink: 0;
-  box-shadow: 0 0 15px var(--color-accent-glow);
+  font-weight: 800;
 }
 
-.user-details {
-  overflow: hidden;
-}
-
-.user-name {
-  font-weight: 600;
-  font-size: var(--font-size-sm);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.user-email {
-  font-size: var(--font-size-xs);
-  color: var(--color-text-muted);
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-/* Sidebar links */
-.sidebar-links {
-  list-style: none;
+.user-copy {
   display: flex;
   flex-direction: column;
-  gap: 2px;
+  min-width: 0;
+}
+
+.user-copy strong,
+.mobile-page-title {
+  font-size: 0.96rem;
+}
+
+.user-copy span,
+.sidebar-caption,
+.mobile-label {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+}
+
+.user-copy span {
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sidebar-caption {
+  margin: 0 0.5rem 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+}
+
+.sidebar-links {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
 }
 
 .sidebar-link {
+  width: 100%;
+  border: none;
+  border-radius: 1rem;
+  padding: 0.9rem 1rem;
+  background: transparent;
+  color: var(--color-text-secondary);
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: 0.625rem var(--spacing-md);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-family);
-  width: 100%;
-  text-align: left;
+  gap: 0.8rem;
+  font: inherit;
   transition: all var(--transition-fast);
 }
 
 .sidebar-link:hover {
-  background: var(--color-accent-light);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-primary);
 }
 
 .sidebar-link-active {
-  background: var(--color-accent-light) !important;
-  color: var(--color-accent) !important;
-  font-weight: 600;
-}
-
-.sidebar-logout {
-  margin-top: auto;
-  color: var(--color-text-muted);
-}
-
-.sidebar-logout:hover {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
-}
-
-.link-icon {
-  font-size: 1.1rem;
-  width: 20px;
-  text-align: center;
-  flex-shrink: 0;
+  background: linear-gradient(135deg, rgba(0, 169, 224, 0.18), rgba(0, 98, 155, 0.16));
+  color: #8cdfff;
+  border: 1px solid rgba(0, 169, 224, 0.18);
 }
 
 .link-label {
   flex: 1;
 }
 
-.link-badge {
-  font-size: 0.65rem;
+.sidebar-logout {
+  margin-top: 1rem;
 }
 
-/* ─── MAIN ──────────────────────────────────────────── */
+.sidebar-logout:hover {
+  background: rgba(226, 0, 26, 0.12);
+  color: #ff9ca7;
+}
+
 .dashboard-main {
   flex: 1;
   min-width: 0;
-  padding: var(--spacing-xl);
-  max-width: 100%;
 }
 
-/* Mobile */
 .mobile-topbar {
   display: flex;
   align-items: center;
-  gap: var(--spacing-md);
-  margin-bottom: var(--spacing-lg);
-  padding-bottom: var(--spacing-md);
-  border-bottom: 1px solid var(--color-border-subtle);
+  gap: 0.9rem;
+  margin-bottom: 1rem;
 }
 
-.hamburger-btn {
-  background: none;
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-sm);
+.mobile-menu-btn {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.95rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-primary);
-  font-size: 1.2rem;
-  padding: 4px 10px;
-  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.mobile-page-title {
-  font-weight: 700;
-  font-size: var(--font-size-lg);
+.mobile-label {
+  display: block;
+  margin-bottom: 0.1rem;
 }
 
 .sidebar-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.5);
-  z-index: 50;
+  background: rgba(3, 8, 15, 0.55);
   backdrop-filter: blur(2px);
+  z-index: 50;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 960px) {
+  .dashboard-body {
+    padding: 1rem;
+  }
+
   .sidebar {
     position: fixed;
-    left: -280px;
     top: 0;
+    left: -320px;
     height: 100vh;
+    width: 290px;
     z-index: 60;
+    padding: 1rem 0 1rem 1rem;
     transition: left var(--transition-normal);
-    width: 260px;
   }
 
   .sidebar.sidebar-open {
     left: 0;
   }
 
-  .dashboard-main {
-    padding: var(--spacing-md);
+  .sidebar-panel {
+    height: 100%;
+    overflow-y: auto;
   }
 }
 </style>

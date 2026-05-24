@@ -2,163 +2,162 @@
   <div class="home-page">
     <AppNavbar />
 
-    <!-- Hero Section -->
-    <section class="hero" id="inicio">
-      <div class="hero-bg">
-        <div class="hero-orb orb-1"></div>
-        <div class="hero-orb orb-2"></div>
-        <div class="hero-grid"></div>
-      </div>
-
-      <div class="container hero-content">
-        <div class="hero-badge">
-          <span class="badge badge-accent">🎯 MTTS 2026</span>
-        </div>
-        <h1 class="hero-title">
-          Tu acceso al
-          <span class="gradient-text">Evento</span>
-          en un QR
-        </h1>
-        <p class="hero-subtitle">
-          Gestiona tu registro, descarga tus códigos QR personalizados y
-          consulta la agenda completa del evento MTTS de forma rápida y segura.
-        </p>
-        <div class="hero-actions">
-          <RouterLink
-            v-if="!isAuthenticated"
-            to="/login"
-            class="btn btn-primary btn-lg"
-            id="hero-btn-login"
-          >
-            🔑 Acceder a mi cuenta
-          </RouterLink>
-          <RouterLink
-            v-else
-            to="/dashboard/mis-qrs"
-            class="btn btn-primary btn-lg"
-            id="hero-btn-dashboard"
-          >
-            📱 Ver mis QRs
-          </RouterLink>
-          <a href="#info" class="btn btn-ghost btn-lg">
-            Más información ↓
-          </a>
-        </div>
-
-        <!-- Stats -->
-        <div class="hero-stats">
-          <div class="stat-item">
-            <span class="stat-number">2026</span>
-            <span class="stat-label">Edición</span>
+    <section class="hero">
+      <div class="hero-backdrop"></div>
+      <div class="container hero-layout">
+        <div class="hero-copy">
+          <div class="hero-kicker">
+            <AppIcon name="sparkles" size="16" />
+            <span>MTTS 2026 · Registro y accesos</span>
           </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-number">100%</span>
-            <span class="stat-label">Digital</span>
-          </div>
-          <div class="stat-divider"></div>
-          <div class="stat-item">
-            <span class="stat-number">QR</span>
-            <span class="stat-label">Personal</span>
-          </div>
-        </div>
-      </div>
 
-      <!-- Floating QR mockup -->
-      <div class="hero-visual">
-        <div class="qr-mockup">
-          <div class="mockup-card">
-            <div class="mockup-header">
-              <div class="mockup-dot red"></div>
-              <div class="mockup-dot yellow"></div>
-              <div class="mockup-dot green"></div>
+          <h1 class="hero-title">
+            Una experiencia de registro clara,
+            <span>profesional y lista para evento.</span>
+          </h1>
+
+          <p class="hero-subtitle">
+            Centraliza credenciales, agenda y codigos QR en una plataforma sobria,
+            rapida y pensada para asistentes, staff y organizadores.
+          </p>
+
+          <div class="hero-actions">
+            <RouterLink
+              v-if="!isAuthenticated"
+              to="/login"
+              class="btn btn-primary btn-lg"
+              id="hero-btn-login"
+            >
+              <AppIcon name="key" size="18" />
+              <span>Acceder a mi cuenta</span>
+            </RouterLink>
+            <RouterLink
+              v-else
+              to="/dashboard/mis-qrs"
+              class="btn btn-primary btn-lg"
+              id="hero-btn-dashboard"
+            >
+              <AppIcon name="qr" size="18" />
+              <span>Ver mis QRs</span>
+            </RouterLink>
+            <a href="#overview" class="btn btn-ghost btn-lg">
+              <AppIcon name="grid" size="18" />
+              <span>Explorar plataforma</span>
+            </a>
+          </div>
+
+          <div class="hero-metrics">
+            <div v-for="metric in metrics" :key="metric.label" class="metric-card">
+              <span class="metric-value">{{ metric.value }}</span>
+              <span class="metric-label">{{ metric.label }}</span>
             </div>
-            <div class="mockup-qr">
-              <div class="qr-pattern">
-                <div class="qr-corner tl"></div>
-                <div class="qr-corner tr"></div>
-                <div class="qr-corner bl"></div>
-                <div class="qr-cells"></div>
+          </div>
+        </div>
+
+        <div class="hero-panel glass">
+          <div class="panel-topline">
+            <span class="panel-tag">Panel principal</span>
+            <span class="panel-status">
+              <AppIcon name="check-circle" size="14" />
+              <span>Operativo</span>
+            </span>
+          </div>
+
+          <div class="panel-preview">
+            <div class="preview-sidebar">
+              <span class="preview-dot active"></span>
+              <span class="preview-dot"></span>
+              <span class="preview-dot"></span>
+            </div>
+
+            <div class="preview-content">
+              <div class="preview-card featured">
+                <div class="preview-card-copy">
+                  <p class="preview-label">Acceso del asistente</p>
+                  <h3>QR listo para validacion</h3>
+                  <p>Disponible para descarga y control en sitio.</p>
+                </div>
+                <div class="preview-qr">
+                  <div class="qr-grid">
+                    <span v-for="cell in 25" :key="cell"></span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="preview-strip">
+                <div class="preview-stat">
+                  <AppIcon name="calendar" size="16" />
+                  <div>
+                    <span>Agenda</span>
+                    <strong>Sesiones activas</strong>
+                  </div>
+                </div>
+                <div class="preview-stat">
+                  <AppIcon name="shield" size="16" />
+                  <div>
+                    <span>Control</span>
+                    <strong>Acceso seguro</strong>
+                  </div>
+                </div>
               </div>
             </div>
-            <p class="mockup-label">Mi QR del Evento</p>
-            <div class="mockup-badge">✓ Válido</div>
           </div>
         </div>
       </div>
     </section>
 
-    <!-- Info section -->
-    <section class="info-section" id="info">
+    <section class="overview-section" id="overview">
       <div class="container">
-        <div class="section-header">
-          <span class="badge badge-accent mb-md">¿Cómo funciona?</span>
-          <h2 class="section-title">Tu experiencia en 3 pasos</h2>
-          <p class="section-subtitle">Proceso simple y seguro para acceder al evento</p>
+        <div class="section-heading">
+          <span class="section-kicker">Como funciona</span>
+          <h2 class="section-title">Un flujo pensado para moverse rapido y verse serio.</h2>
         </div>
 
         <div class="steps-grid">
-          <div class="step-card" v-for="step in steps" :key="step.id">
-            <div class="step-number">{{ step.id }}</div>
-            <div class="step-icon">{{ step.icon }}</div>
-            <h3 class="step-title">{{ step.title }}</h3>
-            <p class="step-desc">{{ step.desc }}</p>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- Features section -->
-    <section class="features-section">
-      <div class="container">
-        <div class="section-header">
-          <span class="badge badge-accent mb-md">Funcionalidades</span>
-          <h2 class="section-title">Todo lo que necesitas</h2>
-        </div>
-
-        <div class="features-grid">
-          <div class="feature-card" v-for="feat in features" :key="feat.title">
-            <div class="feature-icon">{{ feat.icon }}</div>
-            <div>
-              <h3 class="feature-title">{{ feat.title }}</h3>
-              <p class="feature-desc">{{ feat.desc }}</p>
+          <article v-for="step in steps" :key="step.id" class="step-card card">
+            <div class="step-head">
+              <span class="step-id">{{ step.id }}</span>
+              <div class="step-icon">
+                <AppIcon :name="step.icon" size="20" />
+              </div>
             </div>
-          </div>
+            <h3>{{ step.title }}</h3>
+            <p>{{ step.desc }}</p>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- CTA -->
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-card glass">
-          <div class="cta-orb"></div>
-          <h2 class="cta-title">¿Listo para el evento?</h2>
-          <p class="cta-subtitle">Inicia sesión y descarga tus QRs ahora</p>
-          <RouterLink
-            v-if="!isAuthenticated"
-            to="/login"
-            class="btn btn-primary btn-lg"
-            id="cta-btn-login"
-          >
-            Iniciar sesión →
-          </RouterLink>
-          <RouterLink
-            v-else
-            to="/dashboard/mis-qrs"
-            class="btn btn-primary btn-lg"
-            id="cta-btn-dashboard"
-          >
-            Ver mis QRs →
-          </RouterLink>
+    <section class="feature-section">
+      <div class="container feature-layout">
+        <div class="feature-intro">
+          <span class="section-kicker">Capacidades</span>
+          <h2 class="section-title">Todo lo necesario para una operacion ordenada.</h2>
+          <p>
+            La interfaz prioriza lectura, estados claros y acciones directas para que
+            el acceso al evento no se sienta improvisado.
+          </p>
+        </div>
+
+        <div class="feature-grid">
+          <article v-for="feature in features" :key="feature.title" class="feature-card">
+            <div class="feature-icon">
+              <AppIcon :name="feature.icon" size="18" />
+            </div>
+            <div>
+              <h3>{{ feature.title }}</h3>
+              <p>{{ feature.desc }}</p>
+            </div>
+          </article>
         </div>
       </div>
     </section>
 
-    <!-- Logos section -->
-    <section class="logos-section">
+    <section class="partners-section">
       <div class="container">
-        <h3 class="logos-title text-center mb-xl text-muted text-sm font-semibold uppercase tracking-wider">Auspiciantes y Organizadores</h3>
+        <div class="partners-header">
+          <span class="section-kicker">Organizacion y aliados</span>
+        </div>
         <div class="logos-grid">
           <img :src="epnLogo" alt="EPN" class="sponsor-logo" />
           <img :src="mttsLogo" alt="MTTS" class="sponsor-logo" />
@@ -174,12 +173,43 @@
       </div>
     </section>
 
-    <!-- Footer -->
+    <section class="cta-section">
+      <div class="container">
+        <div class="cta-card glass">
+          <div>
+            <span class="section-kicker">Acceso inmediato</span>
+            <h2 class="section-title">Ingresa y gestiona tus credenciales sin friccion.</h2>
+          </div>
+          <RouterLink
+            v-if="!isAuthenticated"
+            to="/login"
+            class="btn btn-primary btn-lg"
+            id="cta-btn-login"
+          >
+            <AppIcon name="key" size="18" />
+            <span>Iniciar sesion</span>
+          </RouterLink>
+          <RouterLink
+            v-else
+            to="/dashboard/mis-qrs"
+            class="btn btn-primary btn-lg"
+            id="cta-btn-dashboard"
+          >
+            <AppIcon name="qr" size="18" />
+            <span>Ir a mis QRs</span>
+          </RouterLink>
+        </div>
+      </div>
+    </section>
+
     <footer class="footer">
       <div class="container footer-inner">
-        <div class="footer-logo">
-          <div class="logo-icon">M</div>
-          <span>MTTS Eventos</span>
+        <div class="footer-brand">
+          <div class="logo-mark small">M</div>
+          <div>
+            <strong>MTTS Eventos</strong>
+            <p>Plataforma de registro y validacion digital</p>
+          </div>
         </div>
         <p class="footer-copy">© {{ currentYear }} MTTS. Todos los derechos reservados.</p>
       </div>
@@ -191,8 +221,8 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
-// Logos
 import epnLogo from '@/assets/EPN.svg'
 import mttsLogo from '@/assets/mtts.svg'
 import ieeeLogo from '@/assets/ieee.svg'
@@ -208,57 +238,53 @@ const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const currentYear = new Date().getFullYear()
 
+const metrics = [
+  { value: '01', label: 'Cuenta unica' },
+  { value: 'QR', label: 'Validacion digital' },
+  { value: '24/7', label: 'Acceso disponible' },
+]
+
 const steps = [
   {
     id: '01',
-    icon: '🔑',
-    title: 'Inicia sesión',
-    desc: 'Accede con tu email y contraseña registrados en el sistema del evento.',
+    icon: 'key',
+    title: 'Inicia sesion',
+    desc: 'Accede con tus credenciales y entra a un espacio personal con tus accesos y datos.',
   },
   {
     id: '02',
-    icon: '📱',
-    title: 'Ve tus QRs',
-    desc: 'Encuentra todos tus códigos QR personalizados para cada actividad del evento.',
+    icon: 'qr',
+    title: 'Consulta tus codigos',
+    desc: 'Visualiza cada QR asignado con su estado, vigencia y detalle de uso.',
   },
   {
     id: '03',
-    icon: '⬇',
+    icon: 'download',
     title: 'Descarga y presenta',
-    desc: 'Descarga como imagen PNG y preséntalo al staff para validación en el evento.',
+    desc: 'Lleva tus accesos al evento en el telefono o descargalos para respaldo inmediato.',
   },
 ]
 
 const features = [
   {
-    icon: '🔒',
+    icon: 'shield',
     title: 'Acceso seguro',
-    desc: 'Autenticación con tokens JWT seguros gestionados automáticamente.',
+    desc: 'Gestion de sesion y permisos con una interfaz clara y confiable.',
   },
   {
-    icon: '📲',
-    title: 'QR Personal',
-    desc: 'Cada asistente tiene sus propios códigos únicos e intransferibles.',
+    icon: 'ticket',
+    title: 'Credenciales por actividad',
+    desc: 'Cada codigo responde a un uso concreto dentro de la operacion del evento.',
   },
   {
-    icon: '⬇',
-    title: 'Descarga PNG',
-    desc: 'Descarga tus QRs como imagen para tenerlos siempre disponibles.',
+    icon: 'calendar',
+    title: 'Agenda integrada',
+    desc: 'Las actividades disponibles conviven con tus accesos en un mismo flujo.',
   },
   {
-    icon: '📅',
-    title: 'Agenda del evento',
-    desc: 'Consulta todas las actividades y sesiones disponibles en el evento.',
-  },
-  {
-    icon: '✅',
-    title: 'Estado en tiempo real',
-    desc: 'Visualiza si tu QR ha sido usado o sigue disponible.',
-  },
-  {
-    icon: '📧',
-    title: 'Recuperación de cuenta',
-    desc: 'Recupera tu acceso fácilmente mediante código enviado a tu email.',
+    icon: 'refresh',
+    title: 'Estados actualizados',
+    desc: 'Disponibilidad, uso y validez visibles sin pasos extra.',
   },
 ]
 </script>
@@ -266,489 +292,411 @@ const features = [
 <style scoped>
 .home-page {
   min-height: 100vh;
-  display: flex;
-  flex-direction: column;
 }
 
-/* ─── HERO ─────────────────────────────────────────── */
 .hero {
   position: relative;
-  min-height: 90vh;
-  display: flex;
-  align-items: center;
+  padding: 4rem 0 3rem;
   overflow: hidden;
-  padding: var(--spacing-3xl) 0;
 }
 
-.hero-bg {
+.hero-backdrop {
   position: absolute;
   inset: 0;
+  background:
+    radial-gradient(circle at 10% 15%, rgba(0, 169, 224, 0.15), transparent 24%),
+    radial-gradient(circle at 80% 22%, rgba(226, 0, 26, 0.12), transparent 18%);
   pointer-events: none;
 }
 
-.hero-orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(80px);
-}
-
-.orb-1 {
-  width: 500px;
-  height: 500px;
-  background: radial-gradient(circle, var(--color-mtts-cyan) 0%, transparent 70%);
-  opacity: 0.3;
-  top: -100px;
-  left: -100px;
-  animation: float 8s ease-in-out infinite;
-}
-
-.orb-2 {
-  width: 400px;
-  height: 400px;
-  background: radial-gradient(circle, var(--color-epn-red) 0%, transparent 70%);
-  opacity: 0.25;
-  bottom: -50px;
-  right: 10%;
-  animation: float 10s ease-in-out infinite reverse;
-}
-
-.hero-grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(0,169,224,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(0,169,224,0.05) 1px, transparent 1px);
-  background-size: 60px 60px;
-}
-
-.hero-content {
+.hero-layout {
   position: relative;
   z-index: 1;
-  max-width: 700px;
-  animation: slideInUp 0.8s ease;
+  display: grid;
+  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
+  gap: 2rem;
+  align-items: center;
 }
 
-.hero-badge {
-  margin-bottom: var(--spacing-lg);
-}
-
-.hero-title {
-  font-size: clamp(2.5rem, 6vw, 4.5rem);
-  font-weight: 800;
-  line-height: 1.1;
-  letter-spacing: -0.03em;
-  margin-bottom: var(--spacing-lg);
-  color: var(--color-text-primary);
-}
-
-.gradient-text {
-  background: var(--gradient-accent);
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-}
-
-.hero-subtitle {
-  font-size: var(--font-size-lg);
+.hero-kicker,
+.section-kicker,
+.panel-tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.45rem 0.85rem;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-secondary);
-  line-height: 1.7;
-  margin-bottom: var(--spacing-2xl);
-  max-width: 560px;
+  font-size: 0.78rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+}
+
+.hero-title,
+.section-title {
+  font-size: clamp(2.8rem, 5vw, 5rem);
+  line-height: 0.98;
+  letter-spacing: -0.05em;
+  margin: 1.25rem 0 1rem;
+}
+
+.hero-title span {
+  display: block;
+  color: #8cdfff;
+}
+
+.hero-subtitle,
+.feature-intro p {
+  max-width: 620px;
+  color: var(--color-text-secondary);
+  font-size: 1.05rem;
 }
 
 .hero-actions {
   display: flex;
-  gap: var(--spacing-md);
   flex-wrap: wrap;
-  margin-bottom: var(--spacing-3xl);
+  gap: 0.9rem;
+  margin: 2rem 0;
 }
 
-/* Stats */
-.hero-stats {
+.hero-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.9rem;
+  max-width: 640px;
+}
+
+.metric-card {
+  padding: 1rem 1.1rem;
+  border-radius: 1.25rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.metric-value {
+  display: block;
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin-bottom: 0.2rem;
+}
+
+.metric-label {
+  color: var(--color-text-muted);
+  font-size: 0.82rem;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.hero-panel {
+  padding: 1.2rem;
+  border-radius: 1.8rem;
+}
+
+.panel-topline,
+.panel-status {
   display: flex;
   align-items: center;
-  gap: var(--spacing-xl);
 }
 
-.stat-item {
+.panel-topline {
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.panel-status {
+  gap: 0.35rem;
+  color: #8cdfff;
+  font-size: 0.82rem;
+}
+
+.panel-preview {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 1rem;
+}
+
+.preview-sidebar {
+  min-height: 100%;
+  padding: 1rem;
+  border-radius: 1.3rem;
+  background: rgba(255, 255, 255, 0.04);
   display: flex;
   flex-direction: column;
+  gap: 0.7rem;
 }
 
-.stat-number {
-  font-size: var(--font-size-2xl);
-  font-weight: 800;
-  color: var(--color-accent);
+.preview-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.2);
 }
 
-.stat-label {
-  font-size: var(--font-size-xs);
+.preview-dot.active {
+  width: 34px;
+  background: linear-gradient(90deg, #00a9e0, #51d9ff);
+}
+
+.preview-content {
+  display: grid;
+  gap: 0.9rem;
+}
+
+.preview-card {
+  border-radius: 1.35rem;
+  padding: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.preview-card.featured {
+  display: grid;
+  grid-template-columns: 1fr 120px;
+  gap: 1rem;
+  align-items: center;
+}
+
+.preview-label {
   color: var(--color-text-muted);
   text-transform: uppercase;
   letter-spacing: 0.1em;
+  font-size: 0.72rem;
+  margin-bottom: 0.45rem;
 }
 
-.stat-divider {
-  width: 1px;
-  height: 40px;
-  background: var(--color-border-subtle);
+.preview-card h3 {
+  font-size: 1.3rem;
+  margin-bottom: 0.35rem;
 }
 
-/* Hero visual */
-.hero-visual {
-  position: absolute;
-  right: 8%;
-  top: 50%;
-  transform: translateY(-50%);
-  z-index: 1;
-  animation: float 6s ease-in-out infinite;
+.preview-card p {
+  color: var(--color-text-secondary);
+  font-size: 0.9rem;
 }
 
-.mockup-card {
-  background: rgba(30, 41, 59, 0.9);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-lg);
-  width: 240px;
-  box-shadow: var(--shadow-lg), 0 0 60px rgba(99,102,241,0.2);
+.preview-qr {
+  aspect-ratio: 1;
+  border-radius: 1.1rem;
+  background: #f5f7fb;
+  padding: 0.85rem;
 }
 
-.mockup-header {
+.qr-grid {
+  height: 100%;
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.25rem;
+}
+
+.qr-grid span {
+  border-radius: 0.22rem;
+  background: #0d1b2c;
+}
+
+.qr-grid span:nth-child(2n) {
+  opacity: 0.2;
+}
+
+.preview-strip {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.9rem;
+}
+
+.preview-stat,
+.feature-card {
   display: flex;
-  gap: 6px;
-  margin-bottom: var(--spacing-md);
+  gap: 0.85rem;
+  align-items: flex-start;
 }
 
-.mockup-dot {
-  width: 10px;
-  height: 10px;
-  border-radius: 50%;
+.preview-stat {
+  padding: 1rem;
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.04);
 }
 
-.mockup-dot.red    { background: #EF4444; }
-.mockup-dot.yellow { background: #F59E0B; }
-.mockup-dot.green  { background: #10B981; }
-
-.mockup-qr {
-  background: #F8FAFC;
-  border-radius: var(--radius-md);
-  padding: var(--spacing-md);
-  margin-bottom: var(--spacing-md);
+.preview-stat span,
+.feature-card p,
+.step-card p,
+.footer-brand p,
+.footer-copy {
+  color: var(--color-text-secondary);
 }
 
-.qr-pattern {
-  position: relative;
-  width: 160px;
-  height: 160px;
-  margin: 0 auto;
+.preview-stat strong {
+  display: block;
+  margin-top: 0.1rem;
+  font-size: 0.95rem;
 }
 
-.qr-corner {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  border: 4px solid #0B0F1A;
-  border-radius: 4px;
+.overview-section,
+.feature-section,
+.partners-section,
+.cta-section {
+  padding: 2.5rem 0 1.5rem;
 }
 
-.qr-corner::after {
-  content: '';
-  position: absolute;
-  inset: 6px;
-  background: #0B0F1A;
-  border-radius: 2px;
-}
-
-.qr-corner.tl { top: 0; left: 0; }
-.qr-corner.tr { top: 0; right: 0; }
-.qr-corner.bl { bottom: 0; left: 0; }
-
-.qr-cells {
-  position: absolute;
-  inset: 0;
-  background-image:
-    repeating-linear-gradient(
-      0deg,
-      transparent,
-      transparent 12px,
-      rgba(11,15,26,0.15) 12px,
-      rgba(11,15,26,0.15) 14px
-    ),
-    repeating-linear-gradient(
-      90deg,
-      transparent,
-      transparent 12px,
-      rgba(11,15,26,0.15) 12px,
-      rgba(11,15,26,0.15) 14px
-    );
-}
-
-.mockup-label {
-  text-align: center;
-  font-size: var(--font-size-sm);
-  font-weight: 600;
-  color: var(--color-text-primary);
-  margin-bottom: var(--spacing-sm);
-}
-
-.mockup-badge {
-  text-align: center;
-  background: var(--color-success-light);
-  color: var(--color-success);
-  font-size: var(--font-size-xs);
-  font-weight: 700;
-  padding: 0.25rem 0.75rem;
-  border-radius: var(--radius-full);
-}
-
-/* ─── SECTIONS ──────────────────────────────────────── */
-.section-header {
-  text-align: center;
-  margin-bottom: var(--spacing-3xl);
+.section-heading,
+.partners-header {
+  margin-bottom: 1.6rem;
 }
 
 .section-title {
-  font-size: var(--font-size-3xl);
-  font-weight: 800;
-  margin-bottom: var(--spacing-md);
-  letter-spacing: -0.02em;
-}
-
-.section-subtitle {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-lg);
-}
-
-/* Steps */
-.info-section {
-  padding: var(--spacing-3xl) 0;
+  font-size: clamp(2rem, 3vw, 3.2rem);
+  margin-top: 0.85rem;
 }
 
 .steps-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-  gap: var(--spacing-xl);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .step-card {
-  background: var(--color-bg-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-xl);
-  padding: var(--spacing-xl);
-  text-align: center;
-  transition: all var(--transition-normal);
-  position: relative;
-  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
 }
 
-.step-card:hover {
-  border-color: var(--color-border);
-  transform: translateY(-4px);
-  box-shadow: var(--shadow-accent);
+.step-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
 }
 
-.step-number {
-  font-size: var(--font-size-4xl);
-  font-weight: 900;
-  color: var(--color-accent);
-  opacity: 0.2;
-  position: absolute;
-  top: var(--spacing-md);
-  right: var(--spacing-md);
-  line-height: 1;
+.step-id {
+  color: var(--color-text-muted);
+  font-size: 0.78rem;
+  letter-spacing: 0.12em;
 }
 
-.step-icon {
-  font-size: 2.5rem;
-  margin-bottom: var(--spacing-md);
+.step-icon,
+.feature-icon {
+  width: 42px;
+  height: 42px;
+  border-radius: 1rem;
+  background: rgba(0, 169, 224, 0.12);
+  color: #8cdfff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
-.step-title {
-  font-size: var(--font-size-xl);
-  font-weight: 700;
-  margin-bottom: var(--spacing-sm);
-}
-
-.step-desc {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.6;
-}
-
-/* Features */
-.features-section {
-  padding: var(--spacing-3xl) 0;
-  background: linear-gradient(180deg, transparent, rgba(0,169,224,0.03) 50%, transparent);
-}
-
-.features-grid {
+.feature-layout {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: var(--spacing-md);
+  grid-template-columns: 0.95fr 1.05fr;
+  gap: 1.25rem;
+  align-items: start;
+}
+
+.feature-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
 }
 
 .feature-card {
-  display: flex;
-  align-items: flex-start;
-  gap: var(--spacing-md);
-  padding: var(--spacing-lg);
-  background: rgba(30, 41, 59, 0.4);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: var(--radius-lg);
-  transition: all var(--transition-fast);
+  padding: 1.15rem;
+  border-radius: 1.3rem;
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
 }
 
-.feature-card:hover {
-  border-color: var(--color-border);
-  background: var(--color-bg-card);
-}
-
-.feature-icon {
-  font-size: 1.5rem;
-  flex-shrink: 0;
-  width: 44px;
-  height: 44px;
-  background: var(--color-accent-light);
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.feature-title {
-  font-size: var(--font-size-base);
-  font-weight: 700;
-  margin-bottom: 4px;
-}
-
-.feature-desc {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-secondary);
-  line-height: 1.5;
-}
-
-/* CTA */
-.cta-section {
-  padding: var(--spacing-3xl) 0;
-}
-
-.cta-card {
-  text-align: center;
-  padding: var(--spacing-3xl) var(--spacing-xl);
-  position: relative;
-  overflow: hidden;
-}
-
-.cta-orb {
-  position: absolute;
-  width: 300px;
-  height: 300px;
-  background: radial-gradient(circle, var(--color-mtts-cyan) 0%, transparent 70%);
-  opacity: 0.3;
-  top: 50%;
-  left: 50%;
-  transform: translate(-50%, -50%);
-  filter: blur(60px);
-  pointer-events: none;
-}
-
-.cta-title {
-  font-size: var(--font-size-3xl);
-  font-weight: 800;
-  margin-bottom: var(--spacing-md);
-  position: relative;
-}
-
-.cta-subtitle {
-  color: var(--color-text-secondary);
-  margin-bottom: var(--spacing-xl);
-  font-size: var(--font-size-lg);
-  position: relative;
-}
-
-/* Footer */
-.footer {
-  background: var(--color-bg-secondary);
-  border-top: 1px solid var(--color-border-subtle);
-  padding: var(--spacing-xl) 0;
-  margin-top: auto;
-}
-
-.footer-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--spacing-md);
-}
-
-.footer-logo {
-  display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
-  font-weight: 700;
-  font-size: var(--font-size-base);
-}
-
-.footer-copy {
-  font-size: var(--font-size-sm);
-  color: var(--color-text-muted);
-}
-
-/* Logos Section */
-.logos-section {
-  padding: var(--spacing-3xl) 0;
-  background: var(--color-bg-secondary);
-  border-top: 1px solid var(--color-border-subtle);
-  border-bottom: 1px solid var(--color-border-subtle);
-}
-
-.logos-title {
-  color: var(--color-text-muted);
-  letter-spacing: 0.05em;
+.feature-card h3 {
+  margin-bottom: 0.3rem;
 }
 
 .logos-grid {
-  display: flex;
-  flex-wrap: wrap;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
+  gap: 1rem;
   align-items: center;
-  justify-content: center;
-  gap: var(--spacing-2xl);
-  opacity: 0.8;
 }
 
 .sponsor-logo {
-  max-width: 140px;
-  max-height: 60px;
+  width: 100%;
+  max-height: 58px;
   object-fit: contain;
-  filter: grayscale(100%) brightness(200%); /* Makes them white/neutral initially */
-  transition: all var(--transition-normal);
+  filter: grayscale(1) brightness(1.8);
+  opacity: 0.85;
 }
 
-.sponsor-logo:hover {
-  filter: grayscale(0%) brightness(100%);
-  transform: scale(1.05);
+.cta-card {
+  border-radius: 1.8rem;
+  padding: 1.6rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
 }
 
-/* Responsive */
-@media (max-width: 900px) {
-  .hero-visual {
-    display: none;
+.footer {
+  padding: 2.5rem 0 3rem;
+}
+
+.footer-inner,
+.footer-brand {
+  display: flex;
+  align-items: center;
+}
+
+.footer-inner {
+  justify-content: space-between;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.footer-brand {
+  gap: 0.9rem;
+}
+
+.logo-mark.small {
+  width: 38px;
+  height: 38px;
+}
+
+@media (max-width: 1024px) {
+  .hero-layout,
+  .feature-layout,
+  .steps-grid {
+    grid-template-columns: 1fr;
   }
 
+  .hero-panel {
+    max-width: 720px;
+  }
+}
+
+@media (max-width: 768px) {
   .hero {
-    min-height: auto;
-    padding: 5rem 0 3rem;
+    padding-top: 2rem;
   }
 
-  .logos-grid {
-    gap: var(--spacing-xl);
+  .hero-metrics,
+  .feature-grid,
+  .preview-strip {
+    grid-template-columns: 1fr;
   }
-  
-  .sponsor-logo {
-    max-width: 100px;
-    max-height: 50px;
+
+  .preview-card.featured {
+    grid-template-columns: 1fr;
+  }
+
+  .panel-preview {
+    grid-template-columns: 1fr;
+  }
+
+  .preview-sidebar {
+    flex-direction: row;
+  }
+
+  .cta-card {
+    align-items: flex-start;
+    flex-direction: column;
   }
 }
 </style>

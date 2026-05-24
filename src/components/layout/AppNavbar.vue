@@ -1,61 +1,91 @@
 <template>
   <nav class="navbar">
     <div class="container navbar-inner">
-      <!-- Logo -->
       <RouterLink to="/" class="navbar-logo" id="nav-logo">
-        <div class="logo-icon">M</div>
-        <span class="logo-text">MTTS <span class="logo-accent">Eventos</span></span>
+        <div class="logo-mark">M</div>
+        <div class="logo-copy">
+          <span class="logo-text">MTTS Eventos</span>
+          <span class="logo-meta">Registro digital</span>
+        </div>
       </RouterLink>
 
-      <!-- Desktop nav links -->
       <ul class="navbar-links hide-mobile">
         <li><RouterLink to="/" class="nav-link" exact-active-class="nav-link-active">Inicio</RouterLink></li>
-        <li v-if="!isAuthenticated">
-          <RouterLink to="/login" class="btn btn-primary btn-sm" id="nav-btn-login">Iniciar sesión</RouterLink>
-        </li>
         <template v-if="isAuthenticated">
           <li><RouterLink to="/dashboard/mis-qrs" class="nav-link" active-class="nav-link-active">Mis QRs</RouterLink></li>
           <li><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
-          <li class="nav-user-menu" ref="menuRef">
-            <button class="nav-user-btn" @click="toggleMenu" id="nav-user-menu-btn" :aria-expanded="menuOpen">
-              <div class="avatar">{{ userInitial }}</div>
-              <span class="hide-mobile">{{ userName }}</span>
-              <span class="chevron" :class="{ open: menuOpen }">▾</span>
-            </button>
-            <Transition name="fade">
-              <div v-if="menuOpen" class="dropdown-menu" role="menu">
-                <RouterLink to="/dashboard/perfil" class="dropdown-item" role="menuitem" @click="menuOpen = false">
-                  👤 Mi perfil
-                </RouterLink>
-                <hr class="divider" />
-                <button class="dropdown-item danger" role="menuitem" @click="handleLogout" id="nav-btn-logout">
-                  <span v-if="!logoutLoading">🚪 Cerrar sesión</span>
-                  <span v-else>Cerrando...</span>
-                </button>
-              </div>
-            </Transition>
-          </li>
         </template>
       </ul>
 
-      <!-- Mobile hamburger -->
-      <button class="hamburger hide-desktop" @click="mobileOpen = !mobileOpen" id="nav-hamburger" :aria-expanded="mobileOpen">
-        <span></span><span></span><span></span>
+      <div class="navbar-actions hide-mobile">
+        <RouterLink
+          v-if="!isAuthenticated"
+          to="/login"
+          class="btn btn-primary btn-sm nav-login"
+          id="nav-btn-login"
+        >
+          <AppIcon name="key" size="16" />
+          <span>Iniciar sesion</span>
+        </RouterLink>
+
+        <div v-else class="nav-user-menu" ref="menuRef">
+          <button class="nav-user-btn" @click="toggleMenu" id="nav-user-menu-btn" :aria-expanded="menuOpen">
+            <div class="avatar">{{ userInitial }}</div>
+            <div class="nav-user-copy">
+              <span class="nav-user-name">{{ userName }}</span>
+              <span class="nav-user-role">Cuenta activa</span>
+            </div>
+            <AppIcon name="chevron-down" size="16" class="chevron" :class="{ open: menuOpen }" />
+          </button>
+          <Transition name="fade">
+            <div v-if="menuOpen" class="dropdown-menu" role="menu">
+              <RouterLink to="/dashboard/perfil" class="dropdown-item" role="menuitem" @click="closeMenus">
+                <AppIcon name="user" size="16" />
+                <span>Mi perfil</span>
+              </RouterLink>
+              <button class="dropdown-item danger" role="menuitem" @click="handleLogout" id="nav-btn-logout">
+                <AppIcon name="logout" size="16" />
+                <span>{{ logoutLoading ? 'Cerrando...' : 'Cerrar sesion' }}</span>
+              </button>
+            </div>
+          </Transition>
+        </div>
+      </div>
+
+      <button class="mobile-toggle hide-desktop" @click="mobileOpen = !mobileOpen" id="nav-hamburger" :aria-expanded="mobileOpen">
+        <AppIcon :name="mobileOpen ? 'x' : 'menu'" size="18" />
       </button>
     </div>
 
-    <!-- Mobile menu -->
     <Transition name="slide">
       <div v-if="mobileOpen" class="mobile-menu hide-desktop">
-        <RouterLink to="/" class="mobile-link" @click="mobileOpen = false">🏠 Inicio</RouterLink>
+        <RouterLink to="/" class="mobile-link" @click="closeMenus">
+          <AppIcon name="home" size="18" />
+          <span>Inicio</span>
+        </RouterLink>
         <template v-if="isAuthenticated">
-          <RouterLink to="/dashboard/mis-qrs" class="mobile-link" @click="mobileOpen = false">📱 Mis QRs</RouterLink>
-          <RouterLink to="/dashboard/agenda" class="mobile-link" @click="mobileOpen = false">📅 Agenda</RouterLink>
-          <RouterLink to="/dashboard/perfil" class="mobile-link" @click="mobileOpen = false">👤 Perfil</RouterLink>
-          <button class="mobile-link danger" @click="handleLogout">🚪 Cerrar sesión</button>
+          <RouterLink to="/dashboard/mis-qrs" class="mobile-link" @click="closeMenus">
+            <AppIcon name="qr" size="18" />
+            <span>Mis QRs</span>
+          </RouterLink>
+          <RouterLink to="/dashboard/agenda" class="mobile-link" @click="closeMenus">
+            <AppIcon name="calendar" size="18" />
+            <span>Agenda</span>
+          </RouterLink>
+          <RouterLink to="/dashboard/perfil" class="mobile-link" @click="closeMenus">
+            <AppIcon name="user" size="18" />
+            <span>Perfil</span>
+          </RouterLink>
+          <button class="mobile-link danger" @click="handleLogout">
+            <AppIcon name="logout" size="18" />
+            <span>{{ logoutLoading ? 'Cerrando...' : 'Cerrar sesion' }}</span>
+          </button>
         </template>
         <template v-else>
-          <RouterLink to="/login" class="mobile-link" @click="mobileOpen = false">🔑 Iniciar sesión</RouterLink>
+          <RouterLink to="/login" class="mobile-link mobile-login" @click="closeMenus">
+            <AppIcon name="key" size="18" />
+            <span>Iniciar sesion</span>
+          </RouterLink>
         </template>
       </div>
     </Transition>
@@ -63,18 +93,19 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { computed, ref } from 'vue'
 import { useRouter } from 'vue-router'
 import { onClickOutside } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth.store'
 import { useQrStore } from '@/stores/qr.store'
+import AppIcon from '@/components/shared/AppIcon.vue'
 
 const authStore = useAuthStore()
 const qrStore = useQrStore()
 const router = useRouter()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
-const userName = computed(() => authStore.user?.nombre ?? '')
+const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 
 const menuOpen = ref(false)
@@ -82,16 +113,22 @@ const mobileOpen = ref(false)
 const logoutLoading = ref(false)
 const menuRef = ref<HTMLElement | null>(null)
 
-onClickOutside(menuRef, () => { menuOpen.value = false })
+onClickOutside(menuRef, () => {
+  menuOpen.value = false
+})
 
 function toggleMenu() {
   menuOpen.value = !menuOpen.value
 }
 
-async function handleLogout() {
-  logoutLoading.value = true
+function closeMenus() {
   menuOpen.value = false
   mobileOpen.value = false
+}
+
+async function handleLogout() {
+  logoutLoading.value = true
+  closeMenus()
   try {
     await authStore.logout()
     qrStore.clearQrs()
@@ -107,114 +144,143 @@ async function handleLogout() {
   position: sticky;
   top: 0;
   z-index: 100;
-  background: rgba(11, 15, 26, 0.85);
-  backdrop-filter: blur(20px);
-  border-bottom: 1px solid var(--color-border-subtle);
+  background: rgba(6, 17, 31, 0.72);
+  backdrop-filter: blur(18px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.07);
 }
 
 .navbar-inner {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  height: 64px;
+  min-height: 78px;
+  gap: var(--spacing-lg);
 }
 
-/* Logo */
 .navbar-logo {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  text-decoration: none;
+  gap: 0.9rem;
+  color: inherit;
 }
 
-.logo-icon {
-  width: 36px;
-  height: 36px;
-  background: var(--gradient-accent);
-  border-radius: var(--radius-md);
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(0, 169, 224, 0.22), rgba(0, 98, 155, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 800;
-  font-size: 1.1rem;
-  color: white;
-  box-shadow: 0 0 20px var(--color-accent-glow);
+  letter-spacing: 0.08em;
+  box-shadow: 0 18px 28px rgba(0, 98, 155, 0.24);
+}
+
+.logo-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
 }
 
 .logo-text {
-  font-size: var(--font-size-lg);
+  font-size: 1rem;
   font-weight: 700;
   color: var(--color-text-primary);
 }
 
-.logo-accent {
-  color: var(--color-accent);
+.logo-meta {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
 }
 
-/* Nav links */
-.navbar-links {
+.navbar-links,
+.navbar-actions {
   display: flex;
   align-items: center;
-  gap: var(--spacing-lg);
+  gap: 0.8rem;
+}
+
+.navbar-links {
   list-style: none;
+  margin-left: auto;
 }
 
 .nav-link {
+  padding: 0.6rem 0.95rem;
+  border-radius: 999px;
   color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-  font-weight: 500;
-  text-decoration: none;
-  padding: 0.375rem 0.75rem;
-  border-radius: var(--radius-sm);
-  transition: all var(--transition-fast);
+  font-size: 0.92rem;
+  font-weight: 600;
 }
 
 .nav-link:hover,
 .nav-link-active {
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-primary);
-  background: var(--color-accent-light);
 }
 
-/* User menu */
+.nav-login {
+  min-width: 150px;
+}
+
 .nav-user-menu {
   position: relative;
 }
 
 .nav-user-btn {
+  min-width: 240px;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 1.2rem;
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
+  padding: 0.4rem 0.55rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  background: var(--color-accent-light);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-full);
-  padding: 0.25rem 0.75rem 0.25rem 0.25rem;
+  gap: 0.75rem;
   cursor: pointer;
-  color: var(--color-text-primary);
-  font-size: var(--font-size-sm);
   font-family: var(--font-family);
   transition: all var(--transition-fast);
 }
 
 .nav-user-btn:hover {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  border-color: var(--color-border);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .avatar {
-  width: 30px;
-  height: 30px;
-  background: var(--gradient-accent);
-  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  border-radius: 0.9rem;
+  background: linear-gradient(145deg, rgba(0, 169, 224, 0.35), rgba(0, 98, 155, 1));
   display: flex;
   align-items: center;
   justify-content: center;
   font-weight: 700;
-  font-size: var(--font-size-sm);
-  color: white;
+}
+
+.nav-user-copy {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  flex: 1;
+}
+
+.nav-user-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+}
+
+.nav-user-role {
+  font-size: 0.74rem;
+  color: var(--color-text-muted);
 }
 
 .chevron {
-  font-size: 0.7rem;
+  color: var(--color-text-muted);
   transition: transform var(--transition-fast);
 }
 
@@ -222,107 +288,91 @@ async function handleLogout() {
   transform: rotate(180deg);
 }
 
-/* Dropdown */
 .dropdown-menu {
   position: absolute;
-  top: calc(100% + 8px);
+  top: calc(100% + 10px);
   right: 0;
-  min-width: 200px;
-  background: var(--color-bg-secondary);
-  border: 1px solid var(--color-border);
-  border-radius: var(--radius-lg);
-  padding: var(--spacing-sm);
-  box-shadow: var(--shadow-lg);
-  z-index: 200;
+  width: 220px;
+  padding: 0.5rem;
+  border-radius: 1.25rem;
+  background: rgba(10, 22, 38, 0.96);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 24px 46px rgba(0, 0, 0, 0.28);
 }
 
 .dropdown-item {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  border-radius: 0.95rem;
+  padding: 0.8rem 0.9rem;
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  width: 100%;
-  padding: 0.625rem var(--spacing-md);
-  border-radius: var(--radius-sm);
-  font-size: var(--font-size-sm);
-  font-family: var(--font-family);
-  color: var(--color-text-secondary);
-  text-decoration: none;
-  background: none;
-  border: none;
+  gap: 0.7rem;
+  font: inherit;
+  text-align: left;
   cursor: pointer;
   transition: all var(--transition-fast);
-  text-align: left;
 }
 
 .dropdown-item:hover {
-  background: var(--color-accent-light);
+  background: rgba(255, 255, 255, 0.06);
   color: var(--color-text-primary);
 }
 
 .dropdown-item.danger:hover {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
+  background: rgba(226, 0, 26, 0.12);
+  color: #ff9ca7;
 }
 
-/* Hamburger */
-.hamburger {
+.mobile-toggle {
+  width: 44px;
+  height: 44px;
+  border-radius: 0.9rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-primary);
   display: flex;
-  flex-direction: column;
-  gap: 5px;
-  background: none;
-  border: none;
-  cursor: pointer;
-  padding: 8px;
+  align-items: center;
+  justify-content: center;
 }
 
-.hamburger span {
-  display: block;
-  width: 22px;
-  height: 2px;
-  background: var(--color-text-primary);
-  border-radius: 2px;
-  transition: all var(--transition-fast);
-}
-
-/* Mobile menu */
 .mobile-menu {
-  border-top: 1px solid var(--color-border-subtle);
-  background: var(--color-bg-secondary);
-  padding: var(--spacing-md);
+  margin: 0 var(--spacing-md) var(--spacing-md);
+  padding: 0.55rem;
+  border-radius: 1.25rem;
+  background: rgba(10, 22, 38, 0.94);
+  border: 1px solid rgba(255, 255, 255, 0.08);
   display: flex;
   flex-direction: column;
-  gap: var(--spacing-xs);
+  gap: 0.3rem;
 }
 
 .mobile-link {
   display: flex;
   align-items: center;
-  gap: var(--spacing-sm);
-  padding: 0.75rem var(--spacing-md);
-  border-radius: var(--radius-md);
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-  text-decoration: none;
-  background: none;
-  border: none;
-  cursor: pointer;
-  font-family: var(--font-family);
+  gap: 0.75rem;
   width: 100%;
-  text-align: left;
-  transition: all var(--transition-fast);
+  padding: 0.9rem 1rem;
+  border-radius: 1rem;
+  border: none;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font: inherit;
 }
 
-.mobile-link:hover {
-  background: var(--color-accent-light);
+.mobile-link:hover,
+.mobile-login {
+  background: rgba(255, 255, 255, 0.05);
   color: var(--color-text-primary);
 }
 
 .mobile-link.danger:hover {
-  background: var(--color-danger-light);
-  color: var(--color-danger);
+  background: rgba(226, 0, 26, 0.12);
+  color: #ff9ca7;
 }
 
-/* Slide animation for mobile */
 .slide-enter-active,
 .slide-leave-active {
   transition: all 0.25s ease;
@@ -338,6 +388,6 @@ async function handleLogout() {
 .slide-enter-to,
 .slide-leave-from {
   opacity: 1;
-  max-height: 400px;
+  max-height: 420px;
 }
 </style>
