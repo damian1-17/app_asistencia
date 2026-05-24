@@ -3,16 +3,21 @@
   "private": true,
   "version": "0.0.0",
   "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vue-tsc -b && vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "start": "serve dist -l ${PORT:-3000}"
   },
   "dependencies": {
     "@vueuse/core": "^14.3.0",
     "axios": "^1.16.1",
     "pinia": "^3.0.4",
     "qrcode": "^1.5.4",
+    "serve": "^14.2.4",
     "vue": "^3.5.34",
     "vue-router": "^4.6.4"
   },
