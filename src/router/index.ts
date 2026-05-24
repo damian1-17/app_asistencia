@@ -55,6 +55,12 @@ const router = createRouter({
           component: () => import('@/views/AdminPanelView.vue'),
           meta: { requiresAuth: true, requiresAdmin: true },
         },
+        {
+          path: 'admin/escaner',
+          name: 'admin-scan',
+          component: () => import('@/views/AdminScanView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true },
+        },
       ],
     },
 

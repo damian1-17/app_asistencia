@@ -15,6 +15,7 @@
           <li><RouterLink to="/dashboard/mis-qrs" class="nav-link" active-class="nav-link-active">Mis QRs</RouterLink></li>
           <li><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
           <li v-if="isAdmin"><RouterLink to="/dashboard/admin" class="nav-link" active-class="nav-link-active">Admin</RouterLink></li>
+          <li v-if="isAdmin"><RouterLink to="/dashboard/admin/escaner" class="nav-link" active-class="nav-link-active">Escaner</RouterLink></li>
         </template>
       </ul>
 
@@ -43,6 +44,10 @@
               <RouterLink v-if="isAdmin" to="/dashboard/admin" class="dropdown-item" role="menuitem" @click="closeMenus">
                 <AppIcon name="shield" size="16" />
                 <span>Panel admin</span>
+              </RouterLink>
+              <RouterLink v-if="isAdmin" to="/dashboard/admin/escaner" class="dropdown-item" role="menuitem" @click="closeMenus">
+                <AppIcon name="qr" size="16" />
+                <span>Escaner QR</span>
               </RouterLink>
               <button class="dropdown-item danger" role="menuitem" @click="handleLogout" id="nav-btn-logout">
                 <AppIcon name="logout" size="16" />
@@ -76,6 +81,10 @@
           <RouterLink v-if="isAdmin" to="/dashboard/admin" class="mobile-link" @click="closeMenus">
             <AppIcon name="shield" size="18" />
             <span>Panel admin</span>
+          </RouterLink>
+          <RouterLink v-if="isAdmin" to="/dashboard/admin/escaner" class="mobile-link" @click="closeMenus">
+            <AppIcon name="qr" size="18" />
+            <span>Escaner QR</span>
           </RouterLink>
           <button class="mobile-link danger" @click="handleLogout">
             <AppIcon name="logout" size="18" />

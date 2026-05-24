@@ -69,6 +69,21 @@ export interface CancelQrDto {
   idUsuarioQr: string
 }
 
+export interface ScanQrDto {
+  token: string
+  idStaff: number
+}
+
+export interface ScanQrResponse {
+  valido: boolean
+  mensaje: string
+  idUsuarioQr?: string
+  idUsuario?: number
+  estado?: string
+  fechaUso?: string | null
+  tipoQr?: Partial<TipoQr>
+}
+
 export interface BulkAssignmentResult {
   asignados: number
   omitidos: number
@@ -124,6 +139,9 @@ const qrApi = {
 
   cancelAssignment: (dto: CancelQrDto): Promise<UsuarioQr> =>
     api.patch('/qr/cancelar', dto).then((r) => r.data),
+
+  scan: (dto: ScanQrDto): Promise<ScanQrResponse> =>
+    api.post('/qr/escanear', dto).then((r) => r.data),
 }
 
 export default qrApi
