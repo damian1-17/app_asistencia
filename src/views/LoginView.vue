@@ -1,38 +1,15 @@
 <template>
   <div class="auth-page">
     <div class="auth-shell">
-      <section class="auth-aside">
+      <section class="auth-card glass">
         <RouterLink to="/" class="auth-logo" id="login-logo-link">
           <div class="logo-mark">M</div>
           <div>
             <strong>MTTS Eventos</strong>
-            <span>Registro y validacion digital</span>
+            <span>Registro digital</span>
           </div>
         </RouterLink>
 
-        <div class="auth-copy">
-          <span class="auth-kicker">Acceso privado</span>
-          <h1>Una entrada limpia para una operacion seria.</h1>
-          <p>
-            Ingresa para consultar tus codigos QR, revisar la agenda y gestionar tu
-            cuenta desde un panel unificado.
-          </p>
-        </div>
-
-        <div class="auth-points">
-          <div class="auth-point" v-for="point in points" :key="point.title">
-            <div class="point-icon">
-              <AppIcon :name="point.icon" size="18" />
-            </div>
-            <div>
-              <strong>{{ point.title }}</strong>
-              <p>{{ point.desc }}</p>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <section class="auth-card glass">
         <div class="auth-card-header">
           <span class="auth-kicker">Iniciar sesion</span>
           <h2>Bienvenido de vuelta</h2>
@@ -155,24 +132,6 @@ const showPassword = ref(false)
 const form = reactive({ email: '', password: '' })
 const errors = reactive({ email: '', password: '' })
 
-const points = [
-  {
-    icon: 'qr',
-    title: 'Codigos QR personales',
-    desc: 'Todos tus accesos reunidos en una sola vista.',
-  },
-  {
-    icon: 'calendar',
-    title: 'Agenda vinculada',
-    desc: 'Consulta actividades sin salir del entorno de registro.',
-  },
-  {
-    icon: 'shield',
-    title: 'Control y seguridad',
-    desc: 'Estados claros para uso, vigencia y validacion.',
-  },
-]
-
 function validate() {
   errors.email = ''
   errors.password = ''
@@ -235,28 +194,11 @@ async function handleLogin() {
 
 .auth-shell {
   width: 100%;
-  max-width: 1180px;
-  display: grid;
-  grid-template-columns: minmax(0, 1fr) minmax(380px, 460px);
-  gap: 1.25rem;
-  align-items: stretch;
+  max-width: 460px;
 }
 
-.auth-aside,
 .auth-card {
   border-radius: 2rem;
-}
-
-.auth-aside {
-  padding: 2rem;
-  background:
-    radial-gradient(circle at top left, rgba(0, 169, 224, 0.18), transparent 25%),
-    rgba(255, 255, 255, 0.04);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  min-height: 680px;
 }
 
 .auth-logo {
@@ -264,6 +206,7 @@ async function handleLogin() {
   align-items: center;
   gap: 0.9rem;
   color: var(--color-text-primary);
+  margin-bottom: 1.5rem;
 }
 
 .logo-mark {
@@ -277,14 +220,11 @@ async function handleLogin() {
   font-weight: 800;
 }
 
-.auth-logo strong,
-.auth-point strong {
+.auth-logo strong {
   display: block;
 }
 
 .auth-logo span,
-.auth-point p,
-.auth-copy p,
 .auth-card-header p {
   color: var(--color-text-secondary);
 }
@@ -296,45 +236,6 @@ async function handleLogin() {
   text-transform: uppercase;
   letter-spacing: 0.14em;
   color: #8cdfff;
-}
-
-.auth-copy h1 {
-  font-size: clamp(2.5rem, 5vw, 4.4rem);
-  line-height: 0.98;
-  letter-spacing: -0.05em;
-  margin-bottom: 1rem;
-}
-
-.auth-copy p {
-  max-width: 560px;
-  font-size: 1.02rem;
-}
-
-.auth-points {
-  display: grid;
-  gap: 0.9rem;
-  max-width: 560px;
-}
-
-.auth-point {
-  padding: 1rem 1.1rem;
-  border-radius: 1.3rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(255, 255, 255, 0.06);
-  display: flex;
-  gap: 0.9rem;
-  align-items: flex-start;
-}
-
-.point-icon {
-  width: 40px;
-  height: 40px;
-  border-radius: 0.95rem;
-  background: rgba(0, 169, 224, 0.12);
-  color: #8cdfff;
-  display: flex;
-  align-items: center;
-  justify-content: center;
 }
 
 .auth-card {
@@ -409,18 +310,7 @@ async function handleLogin() {
   align-self: center;
 }
 
-@media (max-width: 960px) {
-  .auth-shell {
-    grid-template-columns: 1fr;
-  }
-
-  .auth-aside {
-    min-height: auto;
-  }
-}
-
 @media (max-width: 640px) {
-  .auth-aside,
   .auth-card {
     padding: 1.35rem;
     border-radius: 1.5rem;
