@@ -61,7 +61,7 @@
               <label class="form-label" for="reset-code">Código de 6 dígitos</label>
               <input
                 id="reset-code"
-                v-model="codigo"
+                v-model="code"
                 type="text"
                 class="form-input"
                 placeholder="123456"
@@ -75,7 +75,7 @@
               <label class="form-label" for="reset-password">Nueva contraseña</label>
               <input
                 id="reset-password"
-                v-model="nuevaPassword"
+                v-model="newPassword"
                 type="password"
                 class="form-input"
                 placeholder="Mínimo 8 caracteres"
@@ -130,15 +130,15 @@ import AlertMessage from '@/components/shared/AlertMessage.vue'
 
 const step = ref(1)
 const email = ref('')
-const codigo = ref('')
-const nuevaPassword = ref('')
+const code = ref('')
+const newPassword = ref('')
 const confirmPassword = ref('')
 const loading = ref(false)
 const errorMsg = ref('')
 const successMsg = ref('')
 
 const confirmError = computed(
-  () => confirmPassword.value.length > 0 && confirmPassword.value !== nuevaPassword.value,
+  () => confirmPassword.value.length > 0 && confirmPassword.value !== newPassword.value,
 )
 
 async function requestCode() {
@@ -161,7 +161,7 @@ async function resetPassword() {
   loading.value = true
   errorMsg.value = ''
   try {
-    await authApi.resetPassword(email.value, codigo.value, nuevaPassword.value)
+    await authApi.resetPassword(email.value, code.value, newPassword.value)
     step.value = 3
   } catch (err: any) {
     errorMsg.value = err?.response?.data?.message ?? 'Código inválido o expirado'

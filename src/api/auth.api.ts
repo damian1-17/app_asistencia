@@ -11,16 +11,19 @@ export interface RegisterDto {
   password: string
 }
 
+// ⚠ Nombres reales según OpenAPI de producción
 export interface ChangePasswordDto {
-  passwordActual: string
-  passwordNuevo: string
+  currentPassword: string
+  newPassword: string
 }
 
 export interface UserProfile {
   idUsuario: number
   email: string
   nombre: string
-  roles: string[]
+  cedula?: string
+  estado?: string
+  roles: Array<{ idRol?: number; nombre: string; descripcion?: string } | string>
 }
 
 export interface AuthResponse {
@@ -48,19 +51,21 @@ const authApi = {
   refresh: (): Promise<AuthResponse> =>
     api.post('/auth/refresh').then((r) => r.data),
 
+  // ⚠ Campos reales: currentPassword / newPassword
   changePassword: (dto: ChangePasswordDto): Promise<void> =>
     api.post('/auth/change-password', dto).then(() => undefined),
 
   requestPasswordRecovery: (email: string): Promise<{ message: string }> =>
     api.post('/auth/password-recovery/request', { email }).then((r) => r.data),
 
+  // ⚠ Campos reales: email + code + newPassword
   resetPassword: (
     email: string,
-    codigo: string,
-    nuevaPassword: string,
+    code: string,
+    newPassword: string,
   ): Promise<{ message: string }> =>
     api
-      .post('/auth/password-recovery/reset', { email, codigo, nuevaPassword })
+      .post('/auth/password-recovery/reset', { email, code, newPassword })
       .then((r) => r.data),
 }
 

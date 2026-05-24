@@ -2,15 +2,30 @@ import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import authApi, { type UserProfile } from '@/api/auth.api'
 
+// Helper: extrae nombre del rol sin importar si es string u objeto
+function getRoleName(role: { nombre: string } | string): string {
+  return typeof role === 'string' ? role : role.nombre
+}
+
 export const useAuthStore = defineStore('auth', () => {
   const user = ref<UserProfile | null>(null)
   const loading = ref(false)
   const initialized = ref(false)
 
   const isAuthenticated = computed(() => !!user.value)
-  const isUser = computed(() => user.value?.roles?.includes('user') ?? false)
+
+  const roleNames = computed(() =>
+    (user.value?.roles ?? []).map(getRoleName).map((r) => r.toLowerCase()),
+  )
+
+  const isUser = computed(() => roleNames.value.includes('user'))
   const isAdmin = computed(() =>
-    user.value?.roles?.some((r) => ['admin', 'ADMIN'].includes(r)) ?? false,
+    roleNames.value.some((r) => ['admin', 'administrador'].includes(r)),
+  )
+
+  /** Nombre para mostrar en UI */
+  const displayRoles = computed(() =>
+    (user.value?.roles ?? []).map(getRoleName),
   )
 
   async function initialize() {
@@ -62,6 +77,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isUser,
     isAdmin,
+    displayRoles,
     initialize,
     login,
     logout,

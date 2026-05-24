@@ -16,7 +16,7 @@
         <h2 class="profile-name">{{ user?.nombre }}</h2>
         <p class="profile-email">{{ user?.email }}</p>
         <div class="profile-roles">
-          <span class="badge badge-accent" v-for="role in user?.roles" :key="role">
+          <span class="badge badge-accent" v-for="role in displayRoles" :key="role">
             {{ role }}
           </span>
         </div>
@@ -42,7 +42,7 @@
         <div class="detail-row">
           <span class="detail-label">Roles</span>
           <div class="detail-value">
-            <span class="badge badge-accent mr-xs" v-for="role in user?.roles" :key="role">{{ role }}</span>
+            <span class="badge badge-accent mr-xs" v-for="role in displayRoles" :key="role">{{ role }}</span>
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@
           <label class="form-label" for="pwd-actual">Contraseña actual</label>
           <input
             id="pwd-actual"
-            v-model="pwdForm.passwordActual"
+            v-model="pwdForm.currentPassword"
             type="password"
             class="form-input"
             placeholder="Tu contraseña actual"
@@ -73,7 +73,7 @@
           <label class="form-label" for="pwd-nueva">Nueva contraseña</label>
           <input
             id="pwd-nueva"
-            v-model="pwdForm.passwordNuevo"
+            v-model="pwdForm.newPassword"
             type="password"
             class="form-input"
             placeholder="Mínimo 8 caracteres"
@@ -134,15 +134,16 @@ const router = useRouter()
 
 const user = computed(() => authStore.user)
 const userInitial = computed(() => user.value?.nombre?.charAt(0).toUpperCase() ?? '?')
+const displayRoles = computed(() => authStore.displayRoles)
 
 // Change password
-const pwdForm = reactive({ passwordActual: '', passwordNuevo: '', confirm: '' })
+const pwdForm = reactive({ currentPassword: '', newPassword: '', confirm: '' })
 const pwdLoading = ref(false)
 const pwdError = ref('')
 const pwdSuccess = ref(false)
 
 const confirmError = computed(
-  () => pwdForm.confirm.length > 0 && pwdForm.confirm !== pwdForm.passwordNuevo,
+  () => pwdForm.confirm.length > 0 && pwdForm.confirm !== pwdForm.newPassword,
 )
 
 async function changePassword() {
@@ -152,12 +153,12 @@ async function changePassword() {
   pwdSuccess.value = false
   try {
     await authApi.changePassword({
-      passwordActual: pwdForm.passwordActual,
-      passwordNuevo: pwdForm.passwordNuevo,
+      currentPassword: pwdForm.currentPassword,
+      newPassword: pwdForm.newPassword,
     })
     pwdSuccess.value = true
-    pwdForm.passwordActual = ''
-    pwdForm.passwordNuevo = ''
+    pwdForm.currentPassword = ''
+    pwdForm.newPassword = ''
     pwdForm.confirm = ''
     setTimeout(() => { pwdSuccess.value = false }, 4000)
   } catch (err: any) {
