@@ -155,6 +155,25 @@
       </div>
     </section>
 
+    <!-- Logos section -->
+    <section class="logos-section">
+      <div class="container">
+        <h3 class="logos-title text-center mb-xl text-muted text-sm font-semibold uppercase tracking-wider">Auspiciantes y Organizadores</h3>
+        <div class="logos-grid">
+          <img :src="epnLogo" alt="EPN" class="sponsor-logo" />
+          <img :src="mttsLogo" alt="MTTS" class="sponsor-logo" />
+          <img :src="ieeeLogo" alt="IEEE" class="sponsor-logo" />
+          <img :src="ecuadorSeccLogo" alt="IEEE Ecuador Section" class="sponsor-logo" />
+          <img :src="bpcLogo" alt="BPC" class="sponsor-logo" />
+          <img :src="quitoLogo" alt="Quito" class="sponsor-logo" />
+          <img :src="quitomeetingsLogo" alt="Quito Meetings" class="sponsor-logo" />
+          <img :src="seccionLogo" alt="Seccion" class="sponsor-logo" />
+          <img :src="textLogo" alt="Text" class="sponsor-logo" />
+          <img :src="textoLogo" alt="Texto" class="sponsor-logo" />
+        </div>
+      </div>
+    </section>
+
     <!-- Footer -->
     <footer class="footer">
       <div class="container footer-inner">
@@ -172,6 +191,18 @@
 import { computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
+
+// Logos
+import epnLogo from '@/assets/EPN.svg'
+import mttsLogo from '@/assets/mtts.svg'
+import ieeeLogo from '@/assets/ieee.svg'
+import ecuadorSeccLogo from '@/assets/EcuadorSecc.svg'
+import bpcLogo from '@/assets/bpc.svg'
+import quitoLogo from '@/assets/quito.svg'
+import quitomeetingsLogo from '@/assets/quitomeetings.svg'
+import seccionLogo from '@/assets/seccion.svg'
+import textLogo from '@/assets/text.svg'
+import textoLogo from '@/assets/texto.svg'
 
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
@@ -264,7 +295,8 @@ const features = [
 .orb-1 {
   width: 500px;
   height: 500px;
-  background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-mtts-cyan) 0%, transparent 70%);
+  opacity: 0.3;
   top: -100px;
   left: -100px;
   animation: float 8s ease-in-out infinite;
@@ -273,7 +305,8 @@ const features = [
 .orb-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(139,92,246,0.2) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-epn-red) 0%, transparent 70%);
+  opacity: 0.25;
   bottom: -50px;
   right: 10%;
   animation: float 10s ease-in-out infinite reverse;
@@ -283,8 +316,8 @@ const features = [
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(99,102,241,0.05) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.05) 1px, transparent 1px);
+    linear-gradient(rgba(0,169,224,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,169,224,0.05) 1px, transparent 1px);
   background-size: 60px 60px;
 }
 
@@ -546,7 +579,7 @@ const features = [
 /* Features */
 .features-section {
   padding: var(--spacing-3xl) 0;
-  background: linear-gradient(180deg, transparent, rgba(99,102,241,0.03) 50%, transparent);
+  background: linear-gradient(180deg, transparent, rgba(0,169,224,0.03) 50%, transparent);
 }
 
 .features-grid {
@@ -611,7 +644,8 @@ const features = [
   position: absolute;
   width: 300px;
   height: 300px;
-  background: radial-gradient(circle, rgba(99,102,241,0.3) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-mtts-cyan) 0%, transparent 70%);
+  opacity: 0.3;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
@@ -662,6 +696,41 @@ const features = [
   color: var(--color-text-muted);
 }
 
+/* Logos Section */
+.logos-section {
+  padding: var(--spacing-3xl) 0;
+  background: var(--color-bg-secondary);
+  border-top: 1px solid var(--color-border-subtle);
+  border-bottom: 1px solid var(--color-border-subtle);
+}
+
+.logos-title {
+  color: var(--color-text-muted);
+  letter-spacing: 0.05em;
+}
+
+.logos-grid {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-2xl);
+  opacity: 0.8;
+}
+
+.sponsor-logo {
+  max-width: 140px;
+  max-height: 60px;
+  object-fit: contain;
+  filter: grayscale(100%) brightness(200%); /* Makes them white/neutral initially */
+  transition: all var(--transition-normal);
+}
+
+.sponsor-logo:hover {
+  filter: grayscale(0%) brightness(100%);
+  transform: scale(1.05);
+}
+
 /* Responsive */
 @media (max-width: 900px) {
   .hero-visual {
@@ -671,6 +740,15 @@ const features = [
   .hero {
     min-height: auto;
     padding: 5rem 0 3rem;
+  }
+
+  .logos-grid {
+    gap: var(--spacing-xl);
+  }
+  
+  .sponsor-logo {
+    max-width: 100px;
+    max-height: 50px;
   }
 }
 </style>

@@ -199,7 +199,8 @@ async function handleLogin() {
 .orb-1 {
   width: 600px;
   height: 600px;
-  background: radial-gradient(circle, rgba(99,102,241,0.25) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-mtts-cyan) 0%, transparent 70%);
+  opacity: 0.25;
   top: -200px;
   right: -100px;
 }
@@ -207,7 +208,8 @@ async function handleLogin() {
 .orb-2 {
   width: 400px;
   height: 400px;
-  background: radial-gradient(circle, rgba(139,92,246,0.15) 0%, transparent 70%);
+  background: radial-gradient(circle, var(--color-epn-red) 0%, transparent 70%);
+  opacity: 0.15;
   bottom: -100px;
   left: -100px;
 }
@@ -216,8 +218,8 @@ async function handleLogin() {
   position: absolute;
   inset: 0;
   background-image:
-    linear-gradient(rgba(99,102,241,0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(99,102,241,0.04) 1px, transparent 1px);
+    linear-gradient(rgba(0,169,224,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(0,169,224,0.04) 1px, transparent 1px);
   background-size: 50px 50px;
 }
 
