@@ -84,12 +84,20 @@ const logoutLoading = ref(false)
 const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
 const userEmail = computed(() => authStore.user?.email ?? 'Sin email')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
+const isAdmin = computed(() => authStore.isAdmin)
 
-const navLinks = computed(() => [
-  { to: '/dashboard/mis-qrs', icon: 'qr', label: 'Mis QRs', id: 'mis-qrs' },
-  { to: '/dashboard/agenda', icon: 'calendar', label: 'Agenda del evento', id: 'agenda' },
-  { to: '/dashboard/perfil', icon: 'user', label: 'Mi perfil', id: 'perfil' },
-])
+const navLinks = computed(() => {
+  const links = [
+    { to: '/dashboard/mis-qrs', icon: 'qr', label: 'Mis QRs', id: 'mis-qrs' },
+    { to: '/dashboard/agenda', icon: 'calendar', label: 'Agenda del evento', id: 'agenda' },
+  ]
+
+  if (isAdmin.value) {
+    links.push({ to: '/dashboard/admin', icon: 'shield', label: 'Panel admin', id: 'admin' })
+  }
+
+  return links
+})
 
 const currentPageTitle = computed(() => {
   const current = navLinks.value.find((link) => route.path.startsWith(link.to))

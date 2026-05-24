@@ -14,6 +14,7 @@
         <template v-if="isAuthenticated">
           <li><RouterLink to="/dashboard/mis-qrs" class="nav-link" active-class="nav-link-active">Mis QRs</RouterLink></li>
           <li><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
+          <li v-if="isAdmin"><RouterLink to="/dashboard/admin" class="nav-link" active-class="nav-link-active">Admin</RouterLink></li>
         </template>
       </ul>
 
@@ -39,9 +40,9 @@
           </button>
           <Transition name="fade">
             <div v-if="menuOpen" class="dropdown-menu" role="menu">
-              <RouterLink to="/dashboard/perfil" class="dropdown-item" role="menuitem" @click="closeMenus">
-                <AppIcon name="user" size="16" />
-                <span>Mi perfil</span>
+              <RouterLink v-if="isAdmin" to="/dashboard/admin" class="dropdown-item" role="menuitem" @click="closeMenus">
+                <AppIcon name="shield" size="16" />
+                <span>Panel admin</span>
               </RouterLink>
               <button class="dropdown-item danger" role="menuitem" @click="handleLogout" id="nav-btn-logout">
                 <AppIcon name="logout" size="16" />
@@ -72,9 +73,9 @@
             <AppIcon name="calendar" size="18" />
             <span>Agenda</span>
           </RouterLink>
-          <RouterLink to="/dashboard/perfil" class="mobile-link" @click="closeMenus">
-            <AppIcon name="user" size="18" />
-            <span>Perfil</span>
+          <RouterLink v-if="isAdmin" to="/dashboard/admin" class="mobile-link" @click="closeMenus">
+            <AppIcon name="shield" size="18" />
+            <span>Panel admin</span>
           </RouterLink>
           <button class="mobile-link danger" @click="handleLogout">
             <AppIcon name="logout" size="18" />
@@ -105,6 +106,7 @@ const qrStore = useQrStore()
 const router = useRouter()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
+const isAdmin = computed(() => authStore.isAdmin)
 const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 

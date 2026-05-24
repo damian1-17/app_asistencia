@@ -38,10 +38,6 @@ const router = createRouter({
       meta: { requiresAuth: true },
       children: [
         {
-          path: '',
-          redirect: '/dashboard/mis-qrs',
-        },
-        {
           path: 'mis-qrs',
           name: 'mis-qrs',
           component: () => import('@/views/MisQrsView.vue'),
@@ -54,10 +50,10 @@ const router = createRouter({
           meta: { requiresAuth: true },
         },
         {
-          path: 'perfil',
-          name: 'perfil',
-          component: () => import('@/views/PerfilView.vue'),
-          meta: { requiresAuth: true },
+          path: 'admin',
+          name: 'admin-panel',
+          component: () => import('@/views/AdminPanelView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true },
         },
       ],
     },
@@ -83,6 +79,14 @@ router.beforeEach(async (to) => {
   // Si la ruta requiere auth y no está autenticado → login
   if (to.meta.requiresAuth && !authStore.isAuthenticated) {
     return { name: 'login', query: { redirect: to.fullPath } }
+  }
+
+  if (to.path === '/dashboard') {
+    return authStore.isAdmin ? { name: 'admin-panel' } : { name: 'mis-qrs' }
+  }
+
+  if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return { name: 'mis-qrs' }
   }
 
   // Si ya está autenticado y va a páginas solo para guests → dashboard
