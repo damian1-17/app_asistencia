@@ -153,6 +153,7 @@
       </div>
     </section>
 
+
     <section class="partners-section">
       <div class="container">
         <div class="partners-header">
@@ -162,12 +163,9 @@
           <img :src="epnLogo" alt="EPN" class="sponsor-logo" />
           <img :src="mttsLogo" alt="MTTS" class="sponsor-logo" />
           <img :src="ieeeLogo" alt="IEEE" class="sponsor-logo" />
-          <img :src="ecuadorSeccLogo" alt="IEEE Ecuador Section" class="sponsor-logo" />
           <img :src="bpcLogo" alt="BPC" class="sponsor-logo" />
           <img :src="quitoLogo" alt="Quito" class="sponsor-logo" />
-          <img :src="quitomeetingsLogo" alt="Quito Meetings" class="sponsor-logo" />
           <img :src="seccionLogo" alt="Seccion" class="sponsor-logo" />
-          <img :src="textLogo" alt="Text" class="sponsor-logo" />
           <img :src="textoLogo" alt="Texto" class="sponsor-logo" />
         </div>
       </div>
@@ -226,12 +224,9 @@ import AppIcon from '@/components/shared/AppIcon.vue'
 import epnLogo from '@/assets/EPN.svg'
 import mttsLogo from '@/assets/mtts.svg'
 import ieeeLogo from '@/assets/ieee.svg'
-import ecuadorSeccLogo from '@/assets/EcuadorSecc.svg'
 import bpcLogo from '@/assets/bpc.svg'
-import quitoLogo from '@/assets/quito.svg'
-import quitomeetingsLogo from '@/assets/quitomeetings.svg'
+import quitoLogo from '@/assets/quito_logo.svg'
 import seccionLogo from '@/assets/seccion.svg'
-import textLogo from '@/assets/text.svg'
 import textoLogo from '@/assets/texto.svg'
 
 const authStore = useAuthStore()
