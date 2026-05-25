@@ -999,20 +999,6 @@ async function submitTypeForm() {
   }
 }
 
-const togglingId = ref<number | null>(null)
-async function toggleTypeActive(t: TipoQr) {
-  togglingId.value = t.idTipoQr
-  try {
-    const updated = await qrApi.updateTipo(t.idTipoQr, { activo: !t.activo })
-    qrTypes.value = qrTypes.value.map((item) => (item.idTipoQr === updated.idTipoQr ? updated : item))
-    showSuccess(`Tipo "${t.nombre}" ha sido ${updated.activo ? 'activado' : 'desactivado'}.`)
-  } catch (err: any) {
-    globalError.value = 'Ocurrió un error al cambiar el estado del tipo de QR.'
-  } finally {
-    togglingId.value = null
-  }
-}
-
 const deletingTypeId = ref<number | null>(null)
 async function deleteType(t: TipoQr) {
   if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente el Tipo QR "${t.nombre}"? Esta acción no se puede deshacer y fallará si el tipo de QR ya ha sido asignado a algún usuario.`)) {
