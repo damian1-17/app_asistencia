@@ -171,15 +171,24 @@
           <h2 class="section-title">Usuarios QR</h2>
           <p class="section-copy">Asignaciones activas de QRs a usuarios del evento.</p>
         </div>
-        <button
-          id="btn-reload-assignments"
-          class="btn btn-ghost btn-sm"
-          @click="reloadAssignments"
-          :disabled="assignmentsLoading"
-        >
-          <AppIcon name="refresh" size="16" />
-          <span>Actualizar</span>
-        </button>
+        <div class="flex gap-sm">
+          <button
+            class="btn btn-primary btn-sm"
+            @click="openAssignModal"
+          >
+            <AppIcon name="plus" size="16" />
+            <span>Nueva asignación</span>
+          </button>
+          <button
+            id="btn-reload-assignments"
+            class="btn btn-ghost btn-sm"
+            @click="reloadAssignments"
+            :disabled="assignmentsLoading"
+          >
+            <AppIcon name="refresh" size="16" />
+            <span>Actualizar</span>
+          </button>
+        </div>
       </div>
 
       <!-- Filtros -->
@@ -510,11 +519,127 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- ════════════════════════════════════════════════
+       MODAL — Nueva Asignación
+  ════════════════════════════════════════════════ -->
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="assignModalOpen" class="modal-backdrop" @click.self="closeAssignModal" id="modal-assign-backdrop">
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-assign-title">
+
+          <div class="modal-header">
+            <div class="modal-scan-badge">
+              <AppIcon name="user-plus" size="16" />
+              <span>Nueva asignación</span>
+            </div>
+            <button class="modal-close" @click="closeAssignModal" id="btn-close-assign-modal">
+              <AppIcon name="x" size="18" />
+            </button>
+          </div>
+
+          <h3 class="modal-title" id="modal-assign-title">Asignar QR a usuario</h3>
+          <p class="modal-subtitle">Selecciona el usuario y el tipo de código QR que deseas asignarle.</p>
+
+          <form @submit.prevent="submitAssignForm" id="form-assign-qr" class="modal-form">
+            <!-- Buscar Usuario -->
+            <div class="form-group relative">
+              <label class="form-label" for="assign-user">Buscar Usuario <span class="required">*</span></label>
+              <div class="search-wrap">
+                <AppIcon name="search" size="14" />
+                <input
+                  id="assign-user"
+                  v-model="userSearchQuery"
+                  @input="searchUsers"
+                  class="form-input"
+                  placeholder="Escribe el nombre o correo del usuario..."
+                  autocomplete="off"
+                />
+              </div>
+
+              <!-- Lista de resultados (dropdown) -->
+              <div v-if="userSearchResults.length > 0 && showUserDropdown" class="user-dropdown card">
+                <button
+                  v-for="u in userSearchResults"
+                  :key="u.idUsuario"
+                  type="button"
+                  class="user-dropdown-item"
+                  @click="selectUser(u)"
+                >
+                  <div class="user-avatar-xs">{{ u.nombre.charAt(0).toUpperCase() }}</div>
+                  <div class="cell-user-info">
+                    <strong>{{ u.nombre }}</strong>
+                    <span>{{ u.email }}</span>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Usuario seleccionado -->
+              <div v-if="selectedUser" class="selected-user-card mt-sm">
+                <div class="user-avatar-xs">{{ selectedUser.nombre.charAt(0).toUpperCase() }}</div>
+                <div class="cell-user-info">
+                  <strong>{{ selectedUser.nombre }}</strong>
+                  <span>{{ selectedUser.email }}</span>
+                </div>
+                <button type="button" class="btn btn-ghost btn-sm btn-icon" @click="selectedUser = null">
+                  <AppIcon name="x" size="14" />
+                </button>
+              </div>
+            </div>
+
+            <!-- Tipo de QR -->
+            <div class="form-group">
+              <label class="form-label" for="assign-type">Tipo de QR <span class="required">*</span></label>
+              <select v-model="assignForm.idTipoQr" id="assign-type" class="form-input" required>
+                <option value="" disabled>Selecciona un tipo de QR...</option>
+                <option v-for="t in activeQrTypesList" :key="t.idTipoQr" :value="t.idTipoQr">
+                  {{ t.codigo }} - {{ t.nombre }}
+                </option>
+              </select>
+            </div>
+
+            <!-- Expiración -->
+            <div class="form-group">
+              <label class="form-label" for="assign-exp">Fecha de expiración (Opcional)</label>
+              <input
+                id="assign-exp"
+                type="datetime-local"
+                v-model="assignForm.expiracion"
+                class="form-input"
+              />
+            </div>
+
+            <div v-if="assignFormError" class="form-error-banner mt-sm">
+              <AppIcon name="warning" size="16" />
+              {{ assignFormError }}
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost" @click="closeAssignModal" :disabled="assignFormLoading">
+                Cancelar
+              </button>
+              <button type="submit" class="btn btn-primary" :disabled="assignFormLoading || !selectedUser || !assignForm.idTipoQr">
+                <span v-if="!assignFormLoading">
+                  <AppIcon name="check-circle" size="16" />
+                  <span>Asignar QR</span>
+                </span>
+                <span v-else class="flex items-center gap-sm">
+                  <div class="spinner spinner-sm"></div>
+                  <span>Asignando…</span>
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref } from 'vue'
 import qrApi, { type TipoQr, type UsuarioQr } from '@/api/qr.api'
+import usersApi, { type UserRecord } from '@/api/users.api'
 import AlertMessage from '@/components/shared/AlertMessage.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 import LoadingSpinner from '@/components/shared/LoadingSpinner.vue'
@@ -756,6 +881,89 @@ async function cancelAssignment(a: UsuarioQr) {
 
 function openDetailModal(a: UsuarioQr) {
   detailAssignment.value = a
+}
+
+// ── Modal Asignación ────────────────────────────────────────────────────────
+const assignModalOpen = ref(false)
+const assignFormLoading = ref(false)
+const assignFormError = ref('')
+const activeQrTypesList = computed(() => qrTypes.value.filter(t => t.activo))
+
+const userSearchQuery = ref('')
+const userSearchResults = ref<UserRecord[]>([])
+const showUserDropdown = ref(false)
+const selectedUser = ref<UserRecord | null>(null)
+let userSearchTimeout: any = null
+
+const assignForm = reactive({
+  idTipoQr: '' as number | '',
+  expiracion: ''
+})
+
+function openAssignModal() {
+  assignModalOpen.value = true
+  selectedUser.value = null
+  userSearchQuery.value = ''
+  userSearchResults.value = []
+  assignForm.idTipoQr = ''
+  assignForm.expiracion = ''
+  assignFormError.value = ''
+}
+
+function closeAssignModal() {
+  assignModalOpen.value = false
+}
+
+function searchUsers() {
+  if (userSearchTimeout) clearTimeout(userSearchTimeout)
+  if (!userSearchQuery.value || userSearchQuery.value.length < 2) {
+    userSearchResults.value = []
+    showUserDropdown.value = false
+    return
+  }
+  
+  userSearchTimeout = setTimeout(async () => {
+    try {
+      const res = await usersApi.list({ search: userSearchQuery.value, limit: 5 })
+      userSearchResults.value = res.data
+      showUserDropdown.value = true
+    } catch (err) {
+      console.error('Error searching users', err)
+    }
+  }, 300)
+}
+
+function selectUser(user: UserRecord) {
+  selectedUser.value = user
+  userSearchQuery.value = ''
+  showUserDropdown.value = false
+}
+
+async function submitAssignForm() {
+  if (!selectedUser.value || !assignForm.idTipoQr) return
+  
+  assignFormLoading.value = true
+  assignFormError.value = ''
+  
+  try {
+    const payload: any = {
+      idUsuario: selectedUser.value.idUsuario,
+      idTipoQr: Number(assignForm.idTipoQr)
+    }
+    
+    if (assignForm.expiracion) {
+      payload.expiracion = new Date(assignForm.expiracion).toISOString()
+    }
+    
+    await qrApi.assignToUser(payload)
+    showSuccess(`QR asignado a ${selectedUser.value.nombre} correctamente.`)
+    closeAssignModal()
+    reloadAssignments()
+  } catch (err: any) {
+    assignFormError.value = err?.response?.data?.message ?? 'Ocurrió un error al asignar el QR.'
+  } finally {
+    assignFormLoading.value = false
+  }
 }
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
@@ -1508,6 +1716,58 @@ onMounted(async () => {
   color: #f59e0b;
 }
 
+/* ── User Search Dropdown ───────────────────────────────────────────────────── */
+.relative {
+  position: relative;
+}
+
+.user-dropdown {
+  position: absolute;
+  top: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  max-height: 250px;
+  overflow-y: auto;
+  z-index: 100;
+  padding: 0.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: #112031;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 0.8rem;
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+}
+
+.user-dropdown-item {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.6rem;
+  border-radius: 0.5rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: all 0.2s ease;
+  width: 100%;
+}
+
+.user-dropdown-item:hover, .user-dropdown-item:focus {
+  background: rgba(255, 255, 255, 0.05);
+  outline: none;
+}
+
+.selected-user-card {
+  display: flex;
+  align-items: center;
+  gap: 0.8rem;
+  padding: 0.8rem 1rem;
+  border-radius: 0.8rem;
+  background: rgba(0, 169, 224, 0.1);
+  border: 1px solid rgba(0, 169, 224, 0.3);
+}
+
 /* ── Modal animations ───────────────────────────────────────────────────────── */
 .modal-fade-enter-active,
 .modal-fade-leave-active {
@@ -1543,6 +1803,13 @@ onMounted(async () => {
 }
 
 @media (max-width: 640px) {
+  .hero-stats {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .toolbar-multi {
+    flex-direction: column;
+    align-items: stretch;
+  }
   .form-grid-2 {
     grid-template-columns: 1fr;
   }
