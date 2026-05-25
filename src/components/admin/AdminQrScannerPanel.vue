@@ -84,10 +84,93 @@
       </div>
     </div>
   </article>
+
+  <!-- ── Modal de confirmación de escaneo ── -->
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="pendingQr" class="modal-backdrop" @click.self="cancelScan" id="qr-confirm-backdrop">
+        <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+
+          <!-- Indicador de escaneo -->
+          <div class="modal-scan-badge">
+            <AppIcon name="qr" size="20" />
+            <span>QR Detectado</span>
+          </div>
+
+          <h3 class="modal-title" id="modal-title">Confirmar escaneo</h3>
+          <p class="modal-subtitle">Revisa los datos antes de registrar el acceso.</p>
+
+          <div class="modal-fields">
+            <!-- Código y nombre -->
+            <div class="modal-row modal-row-highlight">
+              <div class="modal-field">
+                <span class="field-label">Código</span>
+                <span class="field-value field-code">{{ pendingQr.codigo || '—' }}</span>
+              </div>
+              <div class="modal-field">
+                <span class="field-label">Nombre</span>
+                <span class="field-value">{{ pendingQr.nombre || '—' }}</span>
+              </div>
+            </div>
+
+            <!-- Descripción -->
+            <div v-if="pendingQr.descripcion" class="modal-field modal-field-full">
+              <span class="field-label">Descripción</span>
+              <span class="field-value field-desc">{{ pendingQr.descripcion }}</span>
+            </div>
+
+            <!-- Token -->
+            <div class="modal-field modal-field-full">
+              <span class="field-label">Token</span>
+              <span class="field-value field-token" :title="pendingQr.token">{{ shortPendingToken }}</span>
+            </div>
+
+            <!-- Expiración -->
+            <div v-if="pendingQr.expiracion" class="modal-field modal-field-full">
+              <span class="field-label">Expiración</span>
+              <span class="field-value" :class="isExpired ? 'field-expired' : 'field-ok'">
+                <AppIcon :name="isExpired ? 'warning' : 'check-circle'" size="14" />
+                {{ formatDate(pendingQr.expiracion) }}
+                <span v-if="isExpired" class="expiry-tag">Vencido</span>
+              </span>
+            </div>
+          </div>
+
+          <!-- Acciones -->
+          <div class="modal-actions">
+            <button
+              id="btn-cancel-scan"
+              class="btn btn-ghost modal-btn-cancel"
+              @click="cancelScan"
+              :disabled="scanSubmitting"
+            >
+              <AppIcon name="x" size="16" />
+              <span>Cancelar</span>
+            </button>
+            <button
+              id="btn-confirm-scan"
+              class="btn btn-primary modal-btn-confirm"
+              @click="confirmScan"
+              :disabled="scanSubmitting"
+            >
+              <span v-if="!scanSubmitting">
+                <AppIcon name="check-circle" size="16" />
+                <span>Confirmar acceso</span>
+              </span>
+              <span v-else class="flex items-center gap-sm">
+                <div class="spinner spinner-sm"></div>
+                <span>Registrando...</span>
+              </span>
+            </button>
+          </div>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
-import { onBeforeUnmount, ref } from 'vue'
+import { computed, onBeforeUnmount, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import qrApi, { type ScanQrResponse } from '@/api/qr.api'
 import AlertMessage from '@/components/shared/AlertMessage.vue'
@@ -108,6 +191,39 @@ const manualScanValue = ref('')
 const scanResult = ref<ScanQrResponse | null>(null)
 const loadError = ref('')
 
+// ── Estado del modal de confirmación ──────────────────────────────────────
+interface PendingQrData {
+  token: string
+  codigo: string
+  nombre: string
+  descripcion: string
+  expiracion: string | null
+  rawValue: string
+}
+
+const pendingQr = ref<PendingQrData | null>(null)
+
+const shortPendingToken = computed(() => {
+  const t = pendingQr.value?.token ?? ''
+  return t ? `${t.slice(0, 10)}···${t.slice(-6)}` : '—'
+})
+
+const isExpired = computed(() => {
+  if (!pendingQr.value?.expiracion) return false
+  return new Date(pendingQr.value.expiracion) < new Date()
+})
+
+function formatDate(dateStr: string) {
+  return new Date(dateStr).toLocaleDateString('es-EC', {
+    day: '2-digit',
+    month: 'short',
+    year: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit',
+  })
+}
+
+// ── Scanner ───────────────────────────────────────────────────────────────
 let scannerStream: MediaStream | null = null
 let scannerFrame: number | null = null
 
@@ -127,33 +243,62 @@ function extractToken(rawValue: string) {
   return value
 }
 
-async function submitScanToken(rawValue: string) {
-  const token = extractToken(rawValue)
-  if (!token || !authStore.user?.idUsuario) return
+/** Parsea el raw value del QR y abre el modal de confirmación */
+function openConfirmModal(rawValue: string) {
+  const value = rawValue.trim()
+  let token = value
+  let codigo = ''
+  let nombre = ''
+  let descripcion = ''
+  let expiracion: string | null = null
 
+  try {
+    const parsed = JSON.parse(value)
+    if (typeof parsed?.token === 'string') token = parsed.token
+    codigo = parsed?.codigoTipo ?? parsed?.codigo ?? ''
+    nombre = parsed?.nombre ?? ''
+    descripcion = parsed?.descripcion ?? ''
+    expiracion = parsed?.expiracion ?? null
+  } catch {
+    // el valor es un token plano
+  }
+
+  pendingQr.value = { token, codigo, nombre, descripcion, expiracion, rawValue: value }
+}
+
+function cancelScan() {
+  pendingQr.value = null
+  scannerMessage.value = 'Activa la camara para escanear un codigo QR.'
+  manualScanValue.value = ''
+}
+
+async function confirmScan() {
+  if (!pendingQr.value || !authStore.user?.idUsuario) return
+
+  const token = pendingQr.value.token
   scanSubmitting.value = true
   loadError.value = ''
 
   try {
-    scanResult.value = await qrApi.scan({
-      token,
-      idStaff: authStore.user.idUsuario,
-    })
-
+    scanResult.value = await qrApi.scan({ token, idStaff: authStore.user.idUsuario })
     manualScanValue.value = token
+    pendingQr.value = null
 
     if (scanResult.value.valido) {
       emit('scanned')
     }
   } catch (err: any) {
     loadError.value = err?.response?.data?.message ?? 'No fue posible validar el QR escaneado.'
+    pendingQr.value = null
   } finally {
     scanSubmitting.value = false
   }
 }
 
 async function submitManualScan() {
-  await submitScanToken(manualScanValue.value)
+  const raw = manualScanValue.value.trim()
+  if (!raw) return
+  openConfirmModal(raw)
 }
 
 function stopScanner() {
@@ -197,8 +342,8 @@ async function scanLoop() {
     if (rawValue) {
       stopScanner()
       manualScanValue.value = rawValue
-      scannerMessage.value = 'Codigo detectado. Validando...'
-      await submitScanToken(rawValue)
+      scannerMessage.value = 'Codigo detectado. Confirma para registrar.'
+      openConfirmModal(rawValue)
       return
     }
   } catch {
@@ -379,6 +524,190 @@ code {
   color: #8cdfff;
 }
 
+/* ── Modal de confirmación ──────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(4, 11, 22, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 480px;
+  border-radius: 1.75rem;
+  padding: 2rem 1.75rem 1.75rem;
+  background: linear-gradient(160deg, rgba(14, 26, 46, 0.98), rgba(7, 16, 30, 0.99));
+  border: 1px solid rgba(140, 223, 255, 0.14);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset,
+    0 0 60px rgba(0, 169, 224, 0.06) inset;
+}
+
+.modal-scan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  padding: 0.35rem 0.9rem;
+  border-radius: 99px;
+  background: rgba(0, 169, 224, 0.12);
+  border: 1px solid rgba(0, 169, 224, 0.22);
+  color: #8cdfff;
+  font-size: 0.78rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  margin-bottom: 1rem;
+}
+
+.modal-title {
+  font-size: 1.35rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  color: var(--color-text-primary, #e8f1fb);
+  margin-bottom: 0.3rem;
+}
+
+.modal-subtitle {
+  font-size: 0.86rem;
+  color: var(--color-text-secondary, #7a91b0);
+  margin-bottom: 1.5rem;
+}
+
+.modal-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+}
+
+.modal-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.6rem;
+}
+
+.modal-row-highlight {
+  padding: 0.85rem 1rem;
+  border-radius: 1rem;
+  background: rgba(0, 169, 224, 0.07);
+  border: 1px solid rgba(0, 169, 224, 0.12);
+}
+
+.modal-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.22rem;
+}
+
+.modal-field-full {
+  padding: 0.7rem 1rem;
+  border-radius: 0.85rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.field-label {
+  font-size: 0.7rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted, #4d6380);
+  font-weight: 600;
+}
+
+.field-value {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary, #a8bdd4);
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+}
+
+.field-code {
+  font-family: 'Courier New', monospace;
+  color: #8cdfff;
+  font-size: 0.82rem;
+  letter-spacing: 0.06em;
+}
+
+.field-token {
+  font-family: 'Courier New', monospace;
+  font-size: 0.8rem;
+  color: rgba(140, 223, 255, 0.75);
+  word-break: break-all;
+}
+
+.field-desc {
+  font-size: 0.85rem;
+  line-height: 1.5;
+}
+
+.field-ok {
+  color: #10b981;
+}
+
+.field-expired {
+  color: #f59e0b;
+}
+
+.expiry-tag {
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  padding: 0.1rem 0.45rem;
+  border-radius: 99px;
+  background: rgba(245, 158, 11, 0.18);
+  border: 1px solid rgba(245, 158, 11, 0.35);
+  color: #f59e0b;
+}
+
+.modal-actions {
+  display: flex;
+  gap: 0.75rem;
+}
+
+.modal-btn-cancel {
+  flex: 0 0 auto;
+  min-width: 120px;
+}
+
+.modal-btn-confirm {
+  flex: 1;
+}
+
+/* Animaciones del modal */
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.22s ease;
+}
+
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+
+.modal-fade-enter-active .modal-panel,
+.modal-fade-leave-active .modal-panel {
+  transition: transform 0.25s cubic-bezier(0.34, 1.56, 0.64, 1), opacity 0.22s ease;
+}
+
+.modal-fade-enter-from .modal-panel,
+.modal-fade-leave-to .modal-panel {
+  transform: translateY(28px) scale(0.96);
+  opacity: 0;
+}
+
 @media (max-width: 900px) {
   .scanner-layout {
     grid-template-columns: 1fr;
@@ -389,6 +718,22 @@ code {
   .section-head {
     flex-direction: column;
     align-items: flex-start;
+  }
+
+  .modal-panel {
+    padding: 1.5rem 1.25rem 1.25rem;
+  }
+
+  .modal-row {
+    grid-template-columns: 1fr;
+  }
+
+  .modal-actions {
+    flex-direction: column-reverse;
+  }
+
+  .modal-btn-cancel {
+    min-width: unset;
   }
 }
 </style>
