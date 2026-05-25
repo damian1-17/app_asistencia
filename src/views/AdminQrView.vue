@@ -172,13 +172,19 @@
           <p class="section-copy">Asignaciones activas de QRs a usuarios del evento.</p>
         </div>
         <div class="flex gap-sm">
-          <button
-            class="btn btn-primary btn-sm"
-            @click="openAssignModal"
-          >
-            <AppIcon name="plus" size="16" />
-            <span>Nueva asignación</span>
+          <button class="btn btn-primary btn-sm" @click="openAssignModal" title="Asignación Individual">
+            <AppIcon name="user-plus" size="16" />
+            <span class="hidden-mobile">Individual</span>
           </button>
+          <button class="btn btn-primary btn-sm" @click="openAssignRoleModal" title="Asignar a todos los asistentes (Rol User)">
+            <AppIcon name="users" size="16" />
+            <span class="hidden-mobile">A Todos</span>
+          </button>
+          <button class="btn btn-primary btn-sm" @click="openAssignBatchModal" title="Asignación por Lote (Varios usuarios y QRs)">
+            <AppIcon name="grid" size="16" />
+            <span class="hidden-mobile">Lote</span>
+          </button>
+          
           <button
             id="btn-reload-assignments"
             class="btn btn-ghost btn-sm"
@@ -260,7 +266,7 @@
 
               <!-- Token -->
               <div class="assign-cell">
-                <span class="token-mono" :title="a.token">{{ shortToken(a.token) }}</span>
+                <span class="token-mono" style="font-size: 0.72rem; word-break: break-all;">{{ a.token }}</span>
               </div>
 
               <!-- Vence -->
@@ -634,6 +640,171 @@
       </div>
     </Transition>
   </Teleport>
+
+  <!-- ════════════════════════════════════════════════
+       MODAL — Asignación Masiva a Rol
+  ════════════════════════════════════════════════ -->
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="assignRoleModalOpen" class="modal-backdrop" @click.self="closeAssignRoleModal">
+        <div class="modal-panel" role="dialog" aria-modal="true">
+          <div class="modal-header">
+            <div class="modal-scan-badge">
+              <AppIcon name="users" size="16" />
+              <span>Asignación Masiva</span>
+            </div>
+            <button class="modal-close" @click="closeAssignRoleModal">
+              <AppIcon name="x" size="18" />
+            </button>
+          </div>
+
+          <h3 class="modal-title">Asignar a todos los Asistentes</h3>
+          <p class="modal-subtitle">Esta acción asignará el tipo de QR seleccionado a todos los usuarios con rol 'user'.</p>
+
+          <form @submit.prevent="submitAssignRoleForm" class="modal-form">
+            <div class="form-group">
+              <label class="form-label">Tipo de QR a asignar <span class="required">*</span></label>
+              <select v-model="assignRoleForm.idTipoQr" class="form-input" required>
+                <option value="" disabled>Selecciona un tipo de QR...</option>
+                <option v-for="t in activeQrTypesList" :key="t.idTipoQr" :value="t.idTipoQr">
+                  {{ t.codigo }} - {{ t.nombre }}
+                </option>
+              </select>
+            </div>
+            <div class="form-group">
+              <label class="form-label">Fecha de expiración (Opcional)</label>
+              <input type="datetime-local" v-model="assignRoleForm.expiracion" class="form-input" />
+            </div>
+            
+            <div v-if="assignRoleFormError" class="form-error-banner mt-sm">
+              <AppIcon name="warning" size="16" /> {{ assignRoleFormError }}
+            </div>
+
+            <div class="modal-actions">
+              <button type="button" class="btn btn-ghost" @click="closeAssignRoleModal" :disabled="assignRoleFormLoading">Cancelar</button>
+              <button type="submit" class="btn btn-primary" :disabled="assignRoleFormLoading || !assignRoleForm.idTipoQr">
+                <span v-if="!assignRoleFormLoading">
+                  <AppIcon name="check-circle" size="16" /> <span>Confirmar Asignación</span>
+                </span>
+                <span v-else class="flex items-center gap-sm">
+                  <div class="spinner spinner-sm"></div> <span>Procesando…</span>
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
+
+  <!-- ════════════════════════════════════════════════
+       MODAL — Asignación por Lote
+  ════════════════════════════════════════════════ -->
+  <Teleport to="body">
+    <Transition name="modal-fade">
+      <div v-if="assignBatchModalOpen" class="modal-backdrop" @click.self="closeAssignBatchModal">
+        <div class="modal-panel" role="dialog" aria-modal="true" style="max-width: 650px;">
+          <div class="modal-header">
+            <div class="modal-scan-badge">
+              <AppIcon name="grid" size="16" />
+              <span>Asignación por Lotes</span>
+            </div>
+            <button class="modal-close" @click="closeAssignBatchModal">
+              <AppIcon name="x" size="18" />
+            </button>
+          </div>
+
+          <h3 class="modal-title">Lote: Varios usuarios y Tipos</h3>
+          <p class="modal-subtitle">Agrega usuarios a la lista y marca los tipos de QR que deseas asignarles a todos ellos de una sola vez.</p>
+
+          <form @submit.prevent="submitAssignBatchForm" class="modal-form">
+            <!-- Buscar y agregar usuarios -->
+            <div class="form-group relative">
+              <label class="form-label">Buscar y Agregar Usuarios <span class="required">*</span></label>
+              <div class="search-wrap">
+                <AppIcon name="search" size="14" />
+                <input
+                  v-model="batchSearchQuery"
+                  @input="searchBatchUsers"
+                  class="form-input"
+                  placeholder="Buscar para agregar..."
+                  autocomplete="off"
+                />
+              </div>
+
+              <div v-if="batchSearchResults.length > 0 && showBatchDropdown" class="user-dropdown card">
+                <button
+                  v-for="u in batchSearchResults"
+                  :key="u.idUsuario"
+                  type="button"
+                  class="user-dropdown-item"
+                  @click="addBatchUser(u)"
+                >
+                  <div class="user-avatar-xs">{{ u.nombre.charAt(0).toUpperCase() }}</div>
+                  <div class="cell-user-info">
+                    <strong>{{ u.nombre }}</strong>
+                    <span>{{ u.email }}</span>
+                  </div>
+                </button>
+              </div>
+
+              <!-- Lista de usuarios agregados -->
+              <div v-if="batchUsers.length > 0" class="batch-users-list mt-sm">
+                <div v-for="u in batchUsers" :key="u.idUsuario" class="selected-user-card" style="padding: 0.5rem; margin-bottom: 0.2rem;">
+                  <div class="user-avatar-xs">{{ u.nombre.charAt(0).toUpperCase() }}</div>
+                  <div class="cell-user-info" style="flex: 1;">
+                    <strong>{{ u.nombre }}</strong>
+                    <span>{{ u.email }}</span>
+                  </div>
+                  <button type="button" class="btn btn-ghost btn-sm btn-icon" @click="removeBatchUser(u.idUsuario)">
+                    <AppIcon name="x" size="14" />
+                  </button>
+                </div>
+              </div>
+              <p v-else class="form-hint" style="margin-top:0.4rem;">No has agregado usuarios al lote.</p>
+            </div>
+
+            <!-- Tipos de QR (Checkbox list) -->
+            <div class="form-group" style="margin-top: 1rem;">
+              <label class="form-label">Tipos de QR a asignar <span class="required">*</span></label>
+              <div class="batch-qr-grid">
+                <label v-for="t in activeQrTypesList" :key="t.idTipoQr" class="batch-qr-item" :class="{ 'selected': assignBatchForm.idTiposQr.includes(t.idTipoQr) }">
+                  <input type="checkbox" :value="t.idTipoQr" v-model="assignBatchForm.idTiposQr" style="display:none;" />
+                  <AppIcon :name="assignBatchForm.idTiposQr.includes(t.idTipoQr) ? 'check-square' : 'square'" size="16" />
+                  <div style="flex:1;">
+                    <strong>{{ t.codigo }}</strong>
+                    <span style="display:block; font-size:0.75rem; color:var(--color-text-secondary);">{{ t.nombre }}</span>
+                  </div>
+                </label>
+              </div>
+            </div>
+
+            <!-- Expiración -->
+            <div class="form-group" style="margin-top: 1rem;">
+              <label class="form-label">Fecha de expiración conjunta (Opcional)</label>
+              <input type="datetime-local" v-model="assignBatchForm.expiracion" class="form-input" />
+            </div>
+            
+            <div v-if="assignBatchFormError" class="form-error-banner mt-sm">
+              <AppIcon name="warning" size="16" /> {{ assignBatchFormError }}
+            </div>
+
+            <div class="modal-actions" style="margin-top: 1rem;">
+              <button type="button" class="btn btn-ghost" @click="closeAssignBatchModal" :disabled="assignBatchFormLoading">Cancelar</button>
+              <button type="submit" class="btn btn-primary" :disabled="assignBatchFormLoading || batchUsers.length === 0 || assignBatchForm.idTiposQr.length === 0">
+                <span v-if="!assignBatchFormLoading">
+                  <AppIcon name="check-circle" size="16" /> <span>Asignar Lote</span>
+                </span>
+                <span v-else class="flex items-center gap-sm">
+                  <div class="spinner spinner-sm"></div> <span>Procesando…</span>
+                </span>
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </Transition>
+  </Teleport>
 </template>
 
 <script setup lang="ts">
@@ -963,6 +1134,141 @@ async function submitAssignForm() {
     assignFormError.value = err?.response?.data?.message ?? 'Ocurrió un error al asignar el QR.'
   } finally {
     assignFormLoading.value = false
+  }
+}
+
+// ── Modal Asignación Masiva (Rol) ───────────────────────────────────────────
+const assignRoleModalOpen = ref(false)
+const assignRoleFormLoading = ref(false)
+const assignRoleFormError = ref('')
+const assignRoleForm = reactive({
+  idTipoQr: '' as number | '',
+  expiracion: ''
+})
+
+function openAssignRoleModal() {
+  assignRoleModalOpen.value = true
+  assignRoleForm.idTipoQr = ''
+  assignRoleForm.expiracion = ''
+  assignRoleFormError.value = ''
+}
+
+function closeAssignRoleModal() {
+  assignRoleModalOpen.value = false
+}
+
+async function submitAssignRoleForm() {
+  if (!assignRoleForm.idTipoQr) return
+  
+  assignRoleFormLoading.value = true
+  assignRoleFormError.value = ''
+  
+  try {
+    const payload: any = {
+      idTipoQr: Number(assignRoleForm.idTipoQr)
+    }
+    
+    if (assignRoleForm.expiracion) {
+      payload.expiracion = new Date(assignRoleForm.expiracion).toISOString()
+    }
+    
+    const res = await qrApi.assignToRoleUser(payload)
+    showSuccess(`Asignación masiva completada: ${res.asignados} asignados, ${res.omitidos} omitidos.`)
+    closeAssignRoleModal()
+    reloadAssignments()
+  } catch (err: any) {
+    assignRoleFormError.value = err?.response?.data?.message ?? 'Ocurrió un error en la asignación masiva.'
+  } finally {
+    assignRoleFormLoading.value = false
+  }
+}
+
+// ── Modal Asignación por Lotes ──────────────────────────────────────────────
+const assignBatchModalOpen = ref(false)
+const assignBatchFormLoading = ref(false)
+const assignBatchFormError = ref('')
+const assignBatchForm = reactive({
+  idTiposQr: [] as number[],
+  expiracion: ''
+})
+
+const batchSearchQuery = ref('')
+const batchSearchResults = ref<UserRecord[]>([])
+const showBatchDropdown = ref(false)
+const batchUsers = ref<UserRecord[]>([])
+let batchSearchTimeout: any = null
+
+function openAssignBatchModal() {
+  assignBatchModalOpen.value = true
+  batchUsers.value = []
+  batchSearchQuery.value = ''
+  batchSearchResults.value = []
+  showBatchDropdown.value = false
+  assignBatchForm.idTiposQr = []
+  assignBatchForm.expiracion = ''
+  assignBatchFormError.value = ''
+}
+
+function closeAssignBatchModal() {
+  assignBatchModalOpen.value = false
+}
+
+function searchBatchUsers() {
+  if (batchSearchTimeout) clearTimeout(batchSearchTimeout)
+  if (!batchSearchQuery.value || batchSearchQuery.value.length < 2) {
+    batchSearchResults.value = []
+    showBatchDropdown.value = false
+    return
+  }
+  
+  batchSearchTimeout = setTimeout(async () => {
+    try {
+      const res = await usersApi.list({ search: batchSearchQuery.value, limit: 10 })
+      // Filter out users already added to batch
+      const addedIds = batchUsers.value.map(u => u.idUsuario)
+      batchSearchResults.value = res.data.filter(u => !addedIds.includes(u.idUsuario))
+      showBatchDropdown.value = true
+    } catch (err) {
+      console.error('Error searching users for batch', err)
+    }
+  }, 300)
+}
+
+function addBatchUser(user: UserRecord) {
+  batchUsers.value.push(user)
+  batchSearchQuery.value = ''
+  showBatchDropdown.value = false
+  batchSearchResults.value = []
+}
+
+function removeBatchUser(idUsuario: number) {
+  batchUsers.value = batchUsers.value.filter(u => u.idUsuario !== idUsuario)
+}
+
+async function submitAssignBatchForm() {
+  if (batchUsers.value.length === 0 || assignBatchForm.idTiposQr.length === 0) return
+  
+  assignBatchFormLoading.value = true
+  assignBatchFormError.value = ''
+  
+  try {
+    const payload: any = {
+      idUsuarios: batchUsers.value.map(u => u.idUsuario),
+      idTiposQr: assignBatchForm.idTiposQr
+    }
+    
+    if (assignBatchForm.expiracion) {
+      payload.expiracion = new Date(assignBatchForm.expiracion).toISOString()
+    }
+    
+    const res = await qrApi.assignBatch(payload)
+    showSuccess(`Asignación por lotes completada: ${res.asignados} asignados, ${res.omitidos} omitidos.`)
+    closeAssignBatchModal()
+    reloadAssignments()
+  } catch (err: any) {
+    assignBatchFormError.value = err?.response?.data?.message ?? 'Ocurrió un error en la asignación por lotes.'
+  } finally {
+    assignBatchFormLoading.value = false
   }
 }
 
@@ -1766,6 +2072,46 @@ onMounted(async () => {
   border-radius: 0.8rem;
   background: rgba(0, 169, 224, 0.1);
   border: 1px solid rgba(0, 169, 224, 0.3);
+}
+
+.batch-users-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  max-height: 200px;
+  overflow-y: auto;
+}
+
+.batch-qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.5rem;
+}
+
+.batch-qr-item {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.75rem;
+  border-radius: 0.75rem;
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.batch-qr-item:hover {
+  background: rgba(255, 255, 255, 0.06);
+  border-color: rgba(255, 255, 255, 0.15);
+}
+
+.batch-qr-item.selected {
+  background: rgba(0, 169, 224, 0.15);
+  border-color: #00a9e0;
+}
+
+.batch-qr-item.selected svg {
+  color: #00a9e0;
 }
 
 /* ── Modal animations ───────────────────────────────────────────────────────── */
