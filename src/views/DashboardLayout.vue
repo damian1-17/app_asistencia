@@ -94,6 +94,7 @@ const navLinks = computed(() => {
 
   if (isAdmin.value) {
     links.push({ to: '/dashboard/admin', icon: 'shield', label: 'Panel admin', id: 'admin' })
+    links.push({ to: '/dashboard/admin/qr', icon: 'qr', label: 'Gestión QR', id: 'admin-qr' })
     links.push({ to: '/dashboard/admin/escaner', icon: 'qr', label: 'Escaner QR', id: 'admin-scan' })
   }
 

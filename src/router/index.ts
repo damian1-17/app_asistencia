@@ -61,6 +61,12 @@ const router = createRouter({
           component: () => import('@/views/AdminScanView.vue'),
           meta: { requiresAuth: true, requiresAdmin: true },
         },
+        {
+          path: 'admin/qr',
+          name: 'admin-qr',
+          component: () => import('@/views/AdminQrView.vue'),
+          meta: { requiresAuth: true, requiresAdmin: true },
+        },
       ],
     },
 
