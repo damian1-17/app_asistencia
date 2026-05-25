@@ -140,6 +140,9 @@ const qrApi = {
   cancelAssignment: (dto: CancelQrDto): Promise<UsuarioQr> =>
     api.patch('/qr/cancelar', dto).then((r) => r.data),
 
+  deleteAssignment: (idUsuarioQr: string): Promise<{ deleted: boolean; message: string }> =>
+    api.delete(`/qr/${idUsuarioQr}`).then((r) => r.data),
+
   scan: (dto: ScanQrDto): Promise<ScanQrResponse> =>
     api.post('/qr/escanear', dto).then((r) => r.data),
 }

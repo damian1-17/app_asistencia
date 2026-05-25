@@ -303,6 +303,17 @@
                   <div v-if="cancellingId === a.idUsuarioQr" class="spinner spinner-sm"></div>
                   <AppIcon v-else name="x" size="14" />
                 </button>
+                <button
+                  class="btn btn-ghost btn-icon btn-sm"
+                  style="color: var(--color-danger);"
+                  title="Eliminar QR permanentemente"
+                  :id="`btn-delete-assign-${a.idUsuarioQr}`"
+                  :disabled="deletingId === a.idUsuarioQr"
+                  @click="deleteAssignment(a)"
+                >
+                  <div v-if="deletingId === a.idUsuarioQr" class="spinner spinner-sm"></div>
+                  <AppIcon v-else name="trash" size="14" />
+                </button>
               </div>
             </div>
           </div>
@@ -1047,6 +1058,24 @@ async function cancelAssignment(a: UsuarioQr) {
     globalError.value = err?.response?.data?.message ?? 'No se pudo cancelar la asignación.'
   } finally {
     cancellingId.value = null
+  }
+}
+
+const deletingId = ref<string | null>(null)
+async function deleteAssignment(a: UsuarioQr) {
+  if (!confirm(`¿Estás seguro de que deseas eliminar permanentemente el QR asignado a ${a.usuario?.nombre}? Esta acción no se puede deshacer.`)) {
+    return
+  }
+  
+  deletingId.value = a.idUsuarioQr
+  try {
+    await qrApi.deleteAssignment(a.idUsuarioQr)
+    assignments.value = assignments.value.filter((item) => item.idUsuarioQr !== a.idUsuarioQr)
+    showSuccess(`QR de ${a.usuario?.nombre} eliminado permanentemente.`)
+  } catch (err: any) {
+    globalError.value = err?.response?.data?.message ?? 'Ocurrió un error al eliminar la asignación.'
+  } finally {
+    deletingId.value = null
   }
 }
 
