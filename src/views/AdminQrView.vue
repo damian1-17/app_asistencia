@@ -155,6 +155,16 @@
                   <span>{{ type.activo ? 'Desactivar' : 'Activar' }}</span>
                 </template>
               </button>
+              <button
+                class="btn btn-sm btn-ghost btn-danger-ghost btn-icon"
+                :id="`btn-delete-tipo-${type.idTipoQr}`"
+                :disabled="deletingTypeId === type.idTipoQr"
+                @click="deleteType(type)"
+                title="Eliminar permanentemente"
+              >
+                <div v-if="deletingTypeId === type.idTipoQr" class="spinner spinner-sm"></div>
+                <AppIcon v-else name="trash" size="14" />
+              </button>
             </div>
           </article>
         </div>

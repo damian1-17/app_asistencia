@@ -114,6 +114,9 @@ const qrApi = {
   updateTipo: (idTipoQr: number, dto: UpdateQrTypeDto): Promise<TipoQr> =>
     api.patch(`/qr/tipos/${idTipoQr}`, dto).then((r) => r.data),
 
+  deleteType: (idTipoQr: number): Promise<{ deleted: boolean; message: string }> =>
+    api.delete(`/qr/tipos/${idTipoQr}`).then((r) => r.data),
+
   listAssignments: (params?: { idUsuario?: number; idTipoQr?: number; estado?: string }): Promise<UsuarioQr[]> => {
     const query = new URLSearchParams()
     Object.entries(params ?? {}).forEach(([key, value]) => {
