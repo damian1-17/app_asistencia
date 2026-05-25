@@ -242,12 +242,17 @@
           </div>
 
           <div class="table-list" v-if="assignments.length">
-            <div class="table-row table-row-head">
+            <div class="table-row table-row-head" style="grid-template-columns: 1.5fr 1fr 1fr 0.8fr;">
+              <span>Usuario</span>
               <span>Tipo</span>
               <span>Token</span>
               <span>Estado</span>
             </div>
-            <div class="table-row" v-for="assignment in assignments.slice(0, 8)" :key="assignment.idUsuarioQr">
+            <div class="table-row" style="grid-template-columns: 1.5fr 1fr 1fr 0.8fr;" v-for="assignment in assignments.slice(0, 8)" :key="assignment.idUsuarioQr">
+              <div style="display:flex; flex-direction:column; gap:0.1rem;">
+                <strong>{{ assignment.usuario?.nombre || `ID ${assignment.idUsuario}` }}</strong>
+                <span style="font-size:0.75rem; color:var(--color-text-secondary);">{{ assignment.usuario?.email || '' }}</span>
+              </div>
               <strong>{{ assignment.tipoQr?.nombre || assignment.tipoQr?.codigo || 'QR asignado' }}</strong>
               <span class="token-cell">{{ shortToken(assignment.token) }}</span>
               <span class="badge" :class="assignment.usado ? 'badge-warning' : 'badge-success'">
