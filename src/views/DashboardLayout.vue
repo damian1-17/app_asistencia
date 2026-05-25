@@ -1,10 +1,18 @@
 <template>
   <div class="dashboard-layout">
-    <AppNavbar />
-
     <div class="dashboard-body">
       <aside class="sidebar" :class="{ 'sidebar-open': sidebarOpen }">
         <div class="sidebar-panel">
+          <!-- Logo de la app -->
+          <RouterLink to="/" class="sidebar-brand" id="sidebar-logo-link">
+            <div class="logo-mark">M</div>
+            <div class="logo-copy">
+              <span class="logo-text">MTTS Eventos</span>
+              <span class="logo-meta">Registro digital</span>
+            </div>
+          </RouterLink>
+          <hr class="sidebar-divider" />
+
           <div class="sidebar-header">
             <div class="user-avatar">{{ userInitial }}</div>
             <div class="user-copy">
@@ -70,7 +78,6 @@ import { computed, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth.store'
 import { useQrStore } from '@/stores/qr.store'
-import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
 
 const authStore = useAuthStore()
@@ -133,16 +140,68 @@ async function handleLogout() {
 .sidebar {
   width: 290px;
   position: sticky;
-  top: 94px;
+  top: 1.25rem;
   flex-shrink: 0;
 }
 
 .sidebar-panel {
   border-radius: 1.8rem;
-  padding: 1rem;
+  padding: 1.25rem 1rem;
   background: rgba(10, 22, 38, 0.84);
   border: 1px solid rgba(255, 255, 255, 0.07);
   backdrop-filter: blur(16px);
+}
+
+.sidebar-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  color: inherit;
+  padding: 0.4rem;
+  margin-bottom: 0.5rem;
+  text-decoration: none;
+}
+
+.logo-mark {
+  width: 44px;
+  height: 44px;
+  border-radius: 1rem;
+  background: linear-gradient(145deg, rgba(0, 169, 224, 0.22), rgba(0, 98, 155, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  box-shadow: 0 18px 28px rgba(0, 98, 155, 0.24);
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.logo-copy {
+  display: flex;
+  flex-direction: column;
+  line-height: 1.1;
+}
+
+.logo-text {
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--color-text-primary);
+}
+
+.logo-meta {
+  font-size: 0.74rem;
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  color: var(--color-text-muted);
+}
+
+.sidebar-divider {
+  border: none;
+  height: 1px;
+  background: rgba(255, 255, 255, 0.08);
+  margin: 0.5rem 0 1rem 0;
 }
 
 .sidebar-header {
@@ -260,6 +319,13 @@ async function handleLogout() {
   display: flex;
   align-items: center;
   justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.mobile-menu-btn:hover {
+  border-color: var(--color-border);
+  background: rgba(255, 255, 255, 0.08);
 }
 
 .mobile-label {
@@ -287,7 +353,7 @@ async function handleLogout() {
     height: 100vh;
     width: 290px;
     z-index: 60;
-    padding: 1rem 0 1rem 1rem;
+    padding: 1rem;
     transition: left var(--transition-normal);
   }
 
@@ -298,6 +364,18 @@ async function handleLogout() {
   .sidebar-panel {
     height: 100%;
     overflow-y: auto;
+  }
+
+  .mobile-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 40;
+    background: rgba(6, 17, 31, 0.72);
+    backdrop-filter: blur(18px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    margin: -1rem -1rem 1.25rem -1rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.12);
   }
 }
 </style>
