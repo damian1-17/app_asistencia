@@ -128,6 +128,53 @@
       </div>
     </section>
 
+    <!-- CRONOGRAMA SECTION -->
+    <section class="cronograma-section" id="cronograma">
+      <div class="container">
+        <div class="section-heading text-center">
+          <span class="section-kicker">Programación</span>
+          <h2 class="section-title">Cronograma del Evento</h2>
+          <p class="section-subtitle" style="margin: 0 auto; max-width: 600px;">
+            Planifica tu jornada. Conoce los horarios, conferencias magistrales, paneles y talleres prácticos preparados para ti.
+          </p>
+        </div>
+
+        <div class="timeline-container">
+          <div class="timeline-line"></div>
+          
+          <template v-for="(item, index) in cronograma" :key="index">
+            <!-- Day Divider if first item or day changed -->
+            <div v-if="index === 0 || item.dia !== cronograma[index - 1].dia" class="timeline-day-divider">
+              <span class="day-badge">{{ item.dia }}</span>
+            </div>
+
+            <div 
+              class="timeline-item"
+              :style="{ animationDelay: `${(index % 10) * 0.08}s` }"
+            >
+              <div class="timeline-dot-wrapper">
+                <div class="timeline-dot">
+                  <AppIcon :name="item.icon" size="16" />
+                </div>
+              </div>
+
+              <div class="timeline-card card">
+                <div class="timeline-card-header">
+                  <div class="time-tag">
+                    <AppIcon name="clock" size="14" />
+                    <span>{{ item.hora }}</span>
+                  </div>
+                  <span class="badge" :class="item.badgeClass">{{ item.categoria }}</span>
+                </div>
+                <h3 class="timeline-card-title">{{ item.titulo }}</h3>
+                <p class="timeline-card-desc">{{ item.desc }}</p>
+              </div>
+            </div>
+          </template>
+        </div>
+      </div>
+    </section>
+
     <section class="feature-section">
       <div class="container feature-layout">
         <div class="feature-intro">
@@ -232,6 +279,351 @@ import textoLogo from '@/assets/texto.svg'
 const authStore = useAuthStore()
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const currentYear = new Date().getFullYear()
+
+const cronograma = [
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '8:30 - 9:00',
+    icon: 'ticket',
+    titulo: 'Arrival and Registration',
+    desc: 'Registro de asistentes y llegada al evento.',
+    categoria: 'Registro',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:00 - 9:05',
+    icon: 'sparkles',
+    titulo: 'Welcome Remarks - Head of EPN',
+    desc: 'Palabras de bienvenida por el Dr. Tarquino Sánchez, máxima autoridad de la EPN.',
+    categoria: 'Apertura',
+    badgeClass: 'badge-accent'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:05 - 9:10',
+    icon: 'sparkles',
+    titulo: 'Welcome Remarks - Academic Head',
+    desc: 'Palabras de bienvenida por la Dra. Valentina Ramos, Directora Académica de la EPN.',
+    categoria: 'Apertura',
+    badgeClass: 'badge-accent'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:10 - 9:15',
+    icon: 'sparkles',
+    titulo: 'General Chair Welcome Remarks',
+    desc: 'Intervención del Dr. Hernán Barba, General Chair del BPC Workshop.',
+    categoria: 'Apertura',
+    badgeClass: 'badge-accent'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:15 - 9:20',
+    icon: 'user',
+    titulo: 'Quito Meetings Representative',
+    desc: 'Intervención del representante de la municipalidad de Quito.',
+    categoria: 'Apertura',
+    badgeClass: 'badge-accent'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:20 - 9:30',
+    icon: 'sparkles',
+    titulo: 'Welcome Remarks and Overview of IEEE MTT-S',
+    desc: 'Presentación inicial del Dr. Anding Zhu, Presidente de MTT-S.',
+    categoria: 'Apertura',
+    badgeClass: 'badge-accent'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:30 - 9:55',
+    icon: 'sparkles',
+    titulo: 'Broadening Participation with RF to THz Technologies in the AI Era',
+    desc: 'Charla inaugural por la Dra. Debabani Choudhury, Chair de MTT-S BPC.',
+    categoria: 'Conferencia',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '9:55 - 10:05',
+    icon: 'sparkles',
+    titulo: 'Musical Interlude',
+    desc: 'Presentación musical a cargo del EPN Music Ensemble.',
+    categoria: 'Cultura',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '10:05 - 10:15',
+    icon: 'grid',
+    titulo: 'Official Photo Session',
+    desc: 'Fotografía oficial de los asistentes y delegados del evento.',
+    categoria: 'Networking',
+    badgeClass: 'badge-warning'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '10:15 - 10:40',
+    icon: 'sparkles',
+    titulo: 'Keynote 1 - Powering the Future of Wireless',
+    desc: 'Eficiencia y desafíos de linealidad en transmisores 6G, por el Dr. Anding Zhu.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '10:40 - 11:05',
+    icon: 'sparkles',
+    titulo: 'Keynote 2 - MHz to THz Technologies',
+    desc: 'Perspectivas tecnológicas y nuestro lugar en el universo, por el Dr. Goutam Chattopadhyay (NASA JPL).',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '11:05 - 11:20',
+    icon: 'clock',
+    titulo: 'Coffee/Tea Break',
+    desc: 'Pausa para café y relacionamiento entre los asistentes.',
+    categoria: 'Break',
+    badgeClass: 'badge-warning'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '11:20 - 12:05',
+    icon: 'check-circle',
+    titulo: 'Student Competition - 3MPC',
+    desc: 'Competencia de presentaciones de tres minutos. 11 finalistas exponen frente al panel de jueces.',
+    categoria: 'Competencia',
+    badgeClass: 'badge-danger'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '12:05 - 12:30',
+    icon: 'sparkles',
+    titulo: 'Keynote 3 - Wireless Biomedical Sensing',
+    desc: 'Sensores biomédicos inalámbricos, presentado por el Dr. Victor Manuel Lubecke.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '12:30 - 12:55',
+    icon: 'sparkles',
+    titulo: 'Keynote 4 - Microwave Engineering for Space Exploration',
+    desc: 'Ingeniería de microondas aplicada a la exploración espacial, por el Dr. Imran Mehdi (CalTech).',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '12:55 - 13:20',
+    icon: 'sparkles',
+    titulo: 'Keynote 5 - Microwave & Electromagnetic Systems',
+    desc: 'Aprendizaje desde el pregrado hasta el doctorado, a cargo del Dr. Mohammad Zarifi.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '13:20 - 14:00',
+    icon: 'user',
+    titulo: 'Panel #1 - Enhancing IEEE MTT-S Engagement in Latin America',
+    desc: 'Discusión sobre la creación de impacto en la región a través de actividades BPC.',
+    categoria: 'Panel',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '14:00 - 15:00',
+    icon: 'clock',
+    titulo: 'Lunch',
+    desc: 'Almuerzo para los asistentes del evento.',
+    categoria: 'Break',
+    badgeClass: 'badge-warning'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '15:00 - 15:25',
+    icon: 'sparkles',
+    titulo: 'Keynote 6 - Space Mapping Design Optimization',
+    desc: 'Optimización de diseño y simplicidad en la práctica de ingeniería, por el Dr. Jose Rayas Sánchez.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '15:25 - 15:45',
+    icon: 'sparkles',
+    titulo: 'Keynote 7 - How to Write Academic Proposals',
+    desc: 'Taller sobre escritura de artículos, becas y competencias académicas, por la Dra. Olga Boric Lubecke.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '15:45 - 16:30',
+    icon: 'clipboard',
+    titulo: 'Workshop - Technical Proposals/Publications Mentoring',
+    desc: 'Actividad práctica de mentoría para la redacción de propuestas técnicas y publicaciones.',
+    categoria: 'Workshop',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 1 - 28 de mayo',
+    hora: '16:30 - 17:00',
+    icon: 'user',
+    titulo: 'Afternoon Tea and NETWORKING SESSION',
+    desc: 'Sesión de té vespertino y espacio dedicado al networking.',
+    categoria: 'Networking',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '8:30 - 9:00',
+    icon: 'ticket',
+    titulo: 'Registration (Day 2)',
+    desc: 'Registro y recepción para el segundo día del evento.',
+    categoria: 'Registro',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '9:00 - 9:20',
+    icon: 'sparkles',
+    titulo: 'Keynote 1 - MTT-S: Igniting Passion',
+    desc: 'Pavimentando el futuro para la juventud en Latinoamérica, a cargo del Dr. Glauco Fontgalland.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '9:20 - 9:40',
+    icon: 'sparkles',
+    titulo: 'Keynote 2 - Evolution of Microwave Engineering in Ecuador',
+    desc: 'La experiencia de la Escuela Politécnica Nacional, impartida por el Dr. Hernán Barba.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '9:40 - 9:50',
+    icon: 'sparkles',
+    titulo: 'Keynote 3 - An Overview on MTT-S in Latin America',
+    desc: 'Estado, beneficios y oportunidades en la región, presentado por el Dr. Jose Rayas Sánchez.',
+    categoria: 'Keynote',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '9:50 - 10:30',
+    icon: 'user',
+    titulo: 'Panel #2 - MTT-S BPC Scope, Offerings, Opportunities',
+    desc: 'Discusión entre estudiantes, academia e industria sobre las oportunidades de refuerzo en América Latina.',
+    categoria: 'Panel',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '10:30 - 11:20',
+    icon: 'check-circle',
+    titulo: 'Student Poster Competition with Coffee Break',
+    desc: 'Competencia de pósteres estudiantiles acompañada de un coffee break.',
+    categoria: 'Competencia',
+    badgeClass: 'badge-danger'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '11:20 - 11:40',
+    icon: 'sparkles',
+    titulo: 'Invited 1 - Visualización de ondas acústicas',
+    desc: 'Presentación en 2D y 3D mediante interferometría de retroalimentación óptica, por el Dr. Fernando Urgiles.',
+    categoria: 'Conferencia',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '11:40 - 12:00',
+    icon: 'sparkles',
+    titulo: 'Invited 2 - Direct to Device',
+    desc: 'Análisis sobre la conectividad global directa, por el Dr. Andrés Navarro.',
+    categoria: 'Conferencia',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '12:00 - 12:20',
+    icon: 'sparkles',
+    titulo: 'Invited 3 - Power distribution networks',
+    desc: 'Redes de distribución para frecuencias de microondas y dispositivos de ondas milimétricas, por el Dr. Raúl Haro.',
+    categoria: 'Conferencia',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '12:20 - 12:40',
+    icon: 'sparkles',
+    titulo: 'Invited 4 - Theory of characteristic modes',
+    desc: 'Aplicación en el diseño de antenas multicampo, expuesto por el Dr. Carlos Peñafiel.',
+    categoria: 'Conferencia',
+    badgeClass: 'badge-info'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '12:40 - 14:00',
+    icon: 'user',
+    titulo: 'Group Mentoring Activities for Students and YPs',
+    desc: 'Actividades de mentoría grupal para estudiantes y jóvenes profesionales liderada por destacados ingenieros y académicos.',
+    categoria: 'Networking',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '14:00 - 15:00',
+    icon: 'clock',
+    titulo: 'Lunch',
+    desc: 'Almuerzo para los asistentes del segundo día.',
+    categoria: 'Break',
+    badgeClass: 'badge-warning'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '15:00 - 16:00',
+    icon: 'location',
+    titulo: 'Open House - Tour to University Facilities',
+    desc: 'Recorrido abierto por las instalaciones de la Escuela Politécnica Nacional.',
+    categoria: 'Actividad',
+    badgeClass: 'badge-success'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '16:00 - 16:45',
+    icon: 'check-circle',
+    titulo: 'Award Ceremony',
+    desc: 'Entrega de premios para 3MPC, competencia de pósteres, competencia de escritura y placas LOC.',
+    categoria: 'Ceremonia',
+    badgeClass: 'badge-danger'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '16:45 - 16:50',
+    icon: 'grid',
+    titulo: 'Final Group PHOTO with Banner',
+    desc: 'Fotografía grupal final de clausura con el banner del evento.',
+    categoria: 'Ceremonia',
+    badgeClass: 'badge-warning'
+  },
+  {
+    dia: 'Día 2 - 29 de mayo',
+    hora: '16:50 - 17:00',
+    icon: 'sparkles',
+    titulo: 'Closing Session and Vote of Thanks',
+    desc: 'Sesión de clausura y agradecimientos a cargo del Dr. Hernán Barba, Dra. Sandra Sánchez y Debabani Choudhury.',
+    categoria: 'Cierre',
+    badgeClass: 'badge-accent'
+  }
+];
 
 const metrics = [
   { value: '01', label: 'Cuenta unica' },
@@ -692,6 +1084,166 @@ const features = [
   .cta-card {
     align-items: flex-start;
     flex-direction: column;
+  }
+}
+
+/* --- Cronograma Section --- */
+.cronograma-section {
+  padding: 5rem 0 3rem;
+  position: relative;
+}
+
+.timeline-container {
+  position: relative;
+  max-width: 850px;
+  margin: 3rem auto 0;
+  padding-left: 2rem;
+}
+
+.timeline-line {
+  position: absolute;
+  left: 31px;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: linear-gradient(180deg, var(--color-mtts-cyan) 0%, rgba(0, 169, 224, 0.1) 100%);
+  opacity: 0.8;
+}
+
+.timeline-item {
+  display: grid;
+  grid-template-columns: 64px 1fr;
+  gap: 1rem;
+  margin-bottom: 2rem;
+  position: relative;
+  animation: slideInUp 0.6s ease both;
+}
+
+.timeline-dot-wrapper {
+  display: flex;
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 1.2rem;
+}
+
+.timeline-dot {
+  width: 44px;
+  height: 44px;
+  border-radius: 1rem;
+  background: rgba(6, 17, 31, 0.95);
+  border: 2px solid var(--color-border);
+  color: var(--color-mtts-cyan);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 0 15px rgba(0, 169, 224, 0.2);
+  z-index: 2;
+  transition: all var(--transition-fast);
+}
+
+.timeline-item:hover .timeline-dot {
+  border-color: #8cdfff;
+  color: #8cdfff;
+  box-shadow: 0 0 25px rgba(0, 169, 224, 0.45);
+  transform: scale(1.1);
+}
+
+.timeline-card {
+  padding: 1.5rem;
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border-subtle);
+  border-radius: 1.5rem;
+  transition: all var(--transition-normal);
+}
+
+.timeline-card:hover {
+  border-color: var(--color-border);
+  box-shadow: var(--shadow-lg);
+  transform: translateX(4px);
+}
+
+.timeline-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.85rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+}
+
+.time-tag {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.88rem;
+  font-weight: 700;
+  color: #8cdfff;
+}
+
+.timeline-card-title {
+  font-size: 1.25rem;
+  font-weight: 800;
+  margin-bottom: 0.5rem;
+  color: var(--color-text-primary);
+}
+
+.timeline-card-desc {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  color: var(--color-text-secondary);
+}
+
+.cronograma-section .badge-info {
+  background: rgba(140, 223, 255, 0.15);
+  color: #8cdfff;
+}
+
+.timeline-day-divider {
+  display: flex;
+  justify-content: flex-start;
+  margin: 3.5rem 0 2rem 64px;
+  position: relative;
+  z-index: 2;
+}
+
+.day-badge {
+  background: var(--gradient-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text-primary);
+  padding: 0.6rem 1.4rem;
+  border-radius: 999px;
+  font-weight: 800;
+  font-size: 1.05rem;
+  box-shadow: 0 4px 20px rgba(0, 169, 224, 0.2);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+@media (max-width: 768px) {
+  .timeline-container {
+    padding-left: 0.5rem;
+  }
+  
+  .timeline-line {
+    left: 21px;
+  }
+
+  .timeline-day-divider {
+    margin-left: 44px;
+  }
+  
+  .timeline-item {
+    grid-template-columns: 44px 1fr;
+    gap: 0.5rem;
+  }
+
+  .timeline-dot-wrapper {
+    padding-top: 1rem;
+  }
+  
+  .timeline-dot {
+    width: 36px;
+    height: 36px;
   }
 }
 </style>
