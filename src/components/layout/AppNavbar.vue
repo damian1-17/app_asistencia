@@ -2,7 +2,9 @@
   <nav class="navbar">
     <div class="container navbar-inner">
       <RouterLink to="/" class="navbar-logo" id="nav-logo">
-        <div class="logo-mark">M</div>
+        <div class="logo-mark">
+          <img src="@/assets/mtts.svg" alt="MTTS Logo" style="width: 26px; height: 26px;" />
+        </div>
         <div class="logo-copy">
           <span class="logo-text">MTTS Eventos</span>
           <span class="logo-meta">Registro digital</span>

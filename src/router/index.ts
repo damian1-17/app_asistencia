@@ -3,7 +3,15 @@ import { useAuthStore } from '@/stores/auth.store'
 
 const router = createRouter({
   history: createWebHistory(),
-  scrollBehavior: () => ({ top: 0 }),
+  scrollBehavior(to, _from, savedPosition) {
+    if (to.hash) {
+      return { el: to.hash, behavior: 'smooth' }
+    }
+    if (savedPosition) {
+      return savedPosition
+    }
+    return { top: 0 }
+  },
   routes: [
     // ─── Públicas ───────────────────────────────────
     {
