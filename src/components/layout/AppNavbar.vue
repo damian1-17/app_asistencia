@@ -11,6 +11,7 @@
 
       <ul class="navbar-links hide-mobile">
         <li><RouterLink to="/" class="nav-link" exact-active-class="nav-link-active">Inicio</RouterLink></li>
+        <li><RouterLink to="/#cronograma" class="nav-link">Cronograma</RouterLink></li>
         <template v-if="isAuthenticated">
           <li><RouterLink to="/dashboard/mis-qrs" class="nav-link" active-class="nav-link-active">Mis QRs</RouterLink></li>
           <li><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
@@ -68,6 +69,10 @@
         <RouterLink to="/" class="mobile-link" @click="closeMenus">
           <AppIcon name="home" size="18" />
           <span>Inicio</span>
+        </RouterLink>
+        <RouterLink to="/#cronograma" class="mobile-link" @click="closeMenus">
+          <AppIcon name="calendar" size="18" />
+          <span>Cronograma</span>
         </RouterLink>
         <template v-if="isAuthenticated">
           <RouterLink to="/dashboard/mis-qrs" class="mobile-link" @click="closeMenus">
