@@ -4,24 +4,14 @@
 
     <section class="hero">
       <div class="hero-backdrop"></div>
-      <div class="container hero-layout">
-        <div class="hero-copy">
+      <div class="container hero-layout" style="justify-content: center;">
+        <div class="hero-copy" style="align-items: center; text-align: center;">
           <div class="hero-kicker">
             <AppIcon name="sparkles" size="16" />
             <span>MTTS 2026 · Registro y accesos</span>
           </div>
 
-          <h1 class="hero-title">
-            Una experiencia de registro clara,
-            <span>profesional y lista para evento.</span>
-          </h1>
-
-          <p class="hero-subtitle">
-            Centraliza credenciales, agenda y codigos QR en una plataforma sobria,
-            rapida y pensada para asistentes, staff y organizadores.
-          </p>
-
-          <div class="hero-actions">
+          <div class="hero-actions" style="justify-content: center;">
             <RouterLink
               v-if="!isAuthenticated"
               to="/login"
@@ -40,96 +30,14 @@
               <AppIcon name="qr" size="18" />
               <span>Ver mis QRs</span>
             </RouterLink>
-            <a href="#overview" class="btn btn-ghost btn-lg">
-              <AppIcon name="grid" size="18" />
-              <span>Explorar plataforma</span>
-            </a>
-          </div>
-
-          <div class="hero-metrics">
-            <div v-for="metric in metrics" :key="metric.label" class="metric-card">
-              <span class="metric-value">{{ metric.value }}</span>
-              <span class="metric-label">{{ metric.label }}</span>
-            </div>
-          </div>
-        </div>
-
-        <div class="hero-panel glass">
-          <div class="panel-topline">
-            <span class="panel-tag">Panel principal</span>
-            <span class="panel-status">
-              <AppIcon name="check-circle" size="14" />
-              <span>Operativo</span>
-            </span>
-          </div>
-
-          <div class="panel-preview">
-            <div class="preview-sidebar">
-              <span class="preview-dot active"></span>
-              <span class="preview-dot"></span>
-              <span class="preview-dot"></span>
-            </div>
-
-            <div class="preview-content">
-              <div class="preview-card featured">
-                <div class="preview-card-copy">
-                  <p class="preview-label">Acceso del asistente</p>
-                  <h3>QR listo para validacion</h3>
-                  <p>Disponible para descarga y control en sitio.</p>
-                </div>
-                <div class="preview-qr">
-                  <div class="qr-grid">
-                    <span v-for="cell in 25" :key="cell"></span>
-                  </div>
-                </div>
-              </div>
-
-              <div class="preview-strip">
-                <div class="preview-stat">
-                  <AppIcon name="calendar" size="16" />
-                  <div>
-                    <span>Agenda</span>
-                    <strong>Sesiones activas</strong>
-                  </div>
-                </div>
-                <div class="preview-stat">
-                  <AppIcon name="shield" size="16" />
-                  <div>
-                    <span>Control</span>
-                    <strong>Acceso seguro</strong>
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </div>
     </section>
 
-    <section class="overview-section" id="overview">
-      <div class="container">
-        <div class="section-heading">
-          <span class="section-kicker">Como funciona</span>
-          <h2 class="section-title">Un flujo pensado para moverse rapido y verse serio.</h2>
-        </div>
-
-        <div class="steps-grid">
-          <article v-for="step in steps" :key="step.id" class="step-card card">
-            <div class="step-head">
-              <span class="step-id">{{ step.id }}</span>
-              <div class="step-icon">
-                <AppIcon :name="step.icon" size="20" />
-              </div>
-            </div>
-            <h3>{{ step.title }}</h3>
-            <p>{{ step.desc }}</p>
-          </article>
-        </div>
-      </div>
-    </section>
 
     <!-- CRONOGRAMA SECTION -->
-    <section class="cronograma-section" id="cronograma">
+    <section class="cronograma-section" id="cronograma" style="scroll-margin-top: 80px;">
       <div class="container">
         <div class="section-heading text-center">
           <span class="section-kicker">Programación</span>
@@ -139,38 +47,56 @@
           </p>
         </div>
 
-        <div class="timeline-container">
-          <div class="timeline-line"></div>
+        <!-- Day Switcher -->
+        <div class="day-switcher">
+          <button 
+            v-for="day in uniqueDays" 
+            :key="day"
+            class="day-btn"
+            :class="{ active: activeDay === day }"
+            @click="activeDay = day"
+          >
+            <span class="day-btn-title">{{ day.split(' - ')[0] }}</span>
+            <span class="day-btn-subtitle">{{ day.split(' - ')[1] || '' }}</span>
+          </button>
+        </div>
+
+        <div class="modern-timeline-wrapper">
+          <div class="modern-timeline-line"></div>
           
-          <template v-for="(item, index) in cronograma" :key="index">
-            <!-- Day Divider if first item or day changed -->
-            <div v-if="index === 0 || item.dia !== cronograma[index - 1].dia" class="timeline-day-divider">
-              <span class="day-badge">{{ item.dia }}</span>
+          <div 
+            v-for="(item, index) in filteredCronograma" 
+            :key="index" 
+            class="modern-timeline-item"
+            :style="{ animationDelay: `${(index % 10) * 0.06}s` }"
+          >
+            <!-- Time Column -->
+            <div class="modern-time-col">
+              <span class="time-start">{{ item.hora.split(' - ')[0].trim() }}</span>
+              <span class="time-end">{{ item.hora.split(' - ')[1]?.trim() }}</span>
             </div>
-
-            <div 
-              class="timeline-item"
-              :style="{ animationDelay: `${(index % 10) * 0.08}s` }"
-            >
-              <div class="timeline-dot-wrapper">
-                <div class="timeline-dot">
-                  <AppIcon :name="item.icon" size="16" />
-                </div>
+            
+            <!-- Dot Column -->
+            <div class="modern-dot-col">
+              <div class="modern-dot" :class="item.badgeClass">
+                <div class="modern-dot-inner"></div>
               </div>
-
-              <div class="timeline-card card">
-                <div class="timeline-card-header">
-                  <div class="time-tag">
-                    <AppIcon name="clock" size="14" />
-                    <span>{{ item.hora }}</span>
+            </div>
+            
+            <!-- Content Column -->
+            <div class="modern-content-col">
+              <div class="modern-content-card">
+                <div class="modern-content-header">
+                  <div class="modern-content-title-wrapper">
+                    <AppIcon :name="item.icon" size="16" class="modern-icon" />
+                    <h3 class="modern-title">{{ item.titulo }}</h3>
                   </div>
                   <span class="badge" :class="item.badgeClass">{{ item.categoria }}</span>
                 </div>
-                <h3 class="timeline-card-title">{{ item.titulo }}</h3>
-                <p class="timeline-card-desc">{{ item.desc }}</p>
+                <p class="modern-desc">{{ item.desc }}</p>
               </div>
             </div>
-          </template>
+          </div>
         </div>
       </div>
     </section>
@@ -218,39 +144,14 @@
       </div>
     </section>
 
-    <section class="cta-section">
-      <div class="container">
-        <div class="cta-card glass">
-          <div>
-            <span class="section-kicker">Acceso inmediato</span>
-            <h2 class="section-title">Ingresa y gestiona tus credenciales sin friccion.</h2>
-          </div>
-          <RouterLink
-            v-if="!isAuthenticated"
-            to="/login"
-            class="btn btn-primary btn-lg"
-            id="cta-btn-login"
-          >
-            <AppIcon name="key" size="18" />
-            <span>Iniciar sesion</span>
-          </RouterLink>
-          <RouterLink
-            v-else
-            to="/dashboard/mis-qrs"
-            class="btn btn-primary btn-lg"
-            id="cta-btn-dashboard"
-          >
-            <AppIcon name="qr" size="18" />
-            <span>Ir a mis QRs</span>
-          </RouterLink>
-        </div>
-      </div>
-    </section>
+    
 
     <footer class="footer">
       <div class="container footer-inner">
         <div class="footer-brand">
-          <div class="logo-mark small">M</div>
+          <div class="logo-mark small">
+            <img src="@/assets/mtts.svg" alt="MTTS Logo" style="width: 22px; height: 22px;" />
+          </div>
           <div>
             <strong>MTTS Eventos</strong>
             <p>Plataforma de registro y validacion digital</p>
@@ -263,7 +164,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useAuthStore } from '@/stores/auth.store'
 import AppNavbar from '@/components/layout/AppNavbar.vue'
 import AppIcon from '@/components/shared/AppIcon.vue'
@@ -625,6 +526,15 @@ const cronograma = [
   }
 ];
 
+const uniqueDays = computed(() => {
+  return [...new Set(cronograma.map(item => item.dia))];
+});
+const activeDay = ref(uniqueDays.value[0]);
+
+const filteredCronograma = computed(() => {
+  return cronograma.filter(item => item.dia === activeDay.value);
+});
+
 const metrics = [
   { value: '01', label: 'Cuenta unica' },
   { value: 'QR', label: 'Validacion digital' },
@@ -699,10 +609,10 @@ const features = [
 .hero-layout {
   position: relative;
   z-index: 1;
-  display: grid;
-  grid-template-columns: minmax(0, 1.15fr) minmax(320px, 0.85fr);
-  gap: 2rem;
+  display: flex;
+  flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .hero-kicker,
@@ -1093,157 +1003,220 @@ const features = [
   position: relative;
 }
 
-.timeline-container {
-  position: relative;
-  max-width: 850px;
-  margin: 3rem auto 0;
-  padding-left: 2rem;
-}
-
-.timeline-line {
-  position: absolute;
-  left: 31px;
-  top: 0;
-  bottom: 0;
-  width: 2px;
-  background: linear-gradient(180deg, var(--color-mtts-cyan) 0%, rgba(0, 169, 224, 0.1) 100%);
-  opacity: 0.8;
-}
-
-.timeline-item {
-  display: grid;
-  grid-template-columns: 64px 1fr;
-  gap: 1rem;
-  margin-bottom: 2rem;
-  position: relative;
-  animation: slideInUp 0.6s ease both;
-}
-
-.timeline-dot-wrapper {
+/* --- Day Switcher --- */
+.day-switcher {
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  padding-top: 1.2rem;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 3rem;
+  margin-top: 1.5rem;
 }
 
-.timeline-dot {
-  width: 44px;
-  height: 44px;
-  border-radius: 1rem;
-  background: rgba(6, 17, 31, 0.95);
-  border: 2px solid var(--color-border);
+.day-btn {
+  background: transparent;
+  border: 1px solid var(--color-border);
+  color: var(--color-text-secondary);
+  border-radius: 0.5rem;
+  padding: 0.75rem 1.5rem;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+  text-align: center;
+  min-width: 120px;
+}
+
+.day-btn:hover {
+  border-color: rgba(255, 255, 255, 0.2);
+  color: var(--color-text-primary);
+}
+
+.day-btn.active {
+  background: rgba(0, 169, 224, 0.1);
+  border-color: var(--color-mtts-cyan);
   color: var(--color-mtts-cyan);
+}
+
+.day-btn-title {
+  display: block;
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.day-btn-subtitle {
+  display: block;
+  font-size: 0.75rem;
+  opacity: 0.7;
+  margin-top: 0.25rem;
+}
+
+/* --- Modern Timeline Layout --- */
+.modern-timeline-wrapper {
+  position: relative;
+  max-width: 750px;
+  margin: 0 auto;
+}
+
+.modern-timeline-line {
+  position: absolute;
+  left: 63px;
+  top: 0.5rem;
+  bottom: 0.5rem;
+  width: 1px;
+  background: var(--color-border);
+}
+
+.modern-timeline-item {
+  display: flex;
+  gap: 1.5rem;
+  padding-bottom: 2rem;
+  position: relative;
+  animation: slideInUp 0.5s ease both;
+}
+
+.modern-time-col {
+  width: 64px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  text-align: right;
+  padding-top: 0.2rem;
+  font-family: monospace;
+}
+
+.modern-time-col .time-start {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 0.95rem;
+}
+
+.modern-time-col .time-end {
+  display: block;
+  color: var(--color-text-secondary);
+  font-size: 0.7rem;
+  opacity: 0.6;
+  margin-top: 0.25rem;
+}
+
+.modern-dot-col {
+  position: relative;
+  z-index: 10;
+  display: flex;
+  align-items: flex-start;
+  padding-top: 0.35rem;
+  width: 20px;
+  flex-shrink: 0;
+  justify-content: center;
+}
+
+.modern-dot {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--color-border);
+  background: var(--color-bg-base);
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 0 15px rgba(0, 169, 224, 0.2);
-  z-index: 2;
+}
+
+.modern-dot.badge-primary,
+.modern-dot.badge-accent,
+.modern-dot.badge-info,
+.modern-dot.badge-success {
+  border-color: var(--color-mtts-cyan);
+}
+
+.modern-dot.badge-danger {
+  border-color: #ff4757;
+}
+.modern-dot.badge-warning {
+  border-color: #ffa502;
+}
+
+.modern-dot-inner {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--color-border);
+}
+
+.modern-dot.badge-primary .modern-dot-inner,
+.modern-dot.badge-accent .modern-dot-inner,
+.modern-dot.badge-info .modern-dot-inner,
+.modern-dot.badge-success .modern-dot-inner {
+  background: var(--color-mtts-cyan);
+}
+
+.modern-dot.badge-danger .modern-dot-inner { background: #ff4757; }
+.modern-dot.badge-warning .modern-dot-inner { background: #ffa502; }
+
+.modern-content-col {
+  flex: 1;
+}
+
+.modern-content-card {
+  padding: 1rem 1.25rem;
+  background: rgba(10, 20, 35, 0.3);
+  border-radius: 0.75rem;
   transition: all var(--transition-fast);
+  border: 1px solid transparent;
 }
 
-.timeline-item:hover .timeline-dot {
-  border-color: #8cdfff;
-  color: #8cdfff;
-  box-shadow: 0 0 25px rgba(0, 169, 224, 0.45);
-  transform: scale(1.1);
+.modern-content-card:hover {
+  background: rgba(10, 20, 35, 0.6);
+  border-color: var(--color-border-subtle);
 }
 
-.timeline-card {
-  padding: 1.5rem;
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border-subtle);
-  border-radius: 1.5rem;
-  transition: all var(--transition-normal);
-}
-
-.timeline-card:hover {
-  border-color: var(--color-border);
-  box-shadow: var(--shadow-lg);
-  transform: translateX(4px);
-}
-
-.timeline-card-header {
+.modern-content-header {
   display: flex;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 0.85rem;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
   gap: 1rem;
   flex-wrap: wrap;
 }
 
-.time-tag {
+.modern-content-title-wrapper {
   display: flex;
   align-items: center;
-  gap: 0.45rem;
-  font-size: 0.88rem;
-  font-weight: 700;
-  color: #8cdfff;
+  gap: 0.75rem;
 }
 
-.timeline-card-title {
-  font-size: 1.25rem;
-  font-weight: 800;
-  margin-bottom: 0.5rem;
-  color: var(--color-text-primary);
-}
-
-.timeline-card-desc {
-  font-size: 0.95rem;
-  line-height: 1.6;
+.modern-icon {
   color: var(--color-text-secondary);
 }
 
-.cronograma-section .badge-info {
-  background: rgba(140, 223, 255, 0.15);
-  color: #8cdfff;
-}
-
-.timeline-day-divider {
-  display: flex;
-  justify-content: flex-start;
-  margin: 3.5rem 0 2rem 64px;
-  position: relative;
-  z-index: 2;
-}
-
-.day-badge {
-  background: var(--gradient-card);
-  border: 1px solid var(--color-border);
+.modern-title {
+  font-size: 1.1rem;
+  font-weight: 700;
   color: var(--color-text-primary);
-  padding: 0.6rem 1.4rem;
-  border-radius: 999px;
-  font-weight: 800;
-  font-size: 1.05rem;
-  box-shadow: 0 4px 20px rgba(0, 169, 224, 0.2);
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
+  margin: 0;
+}
+
+.modern-desc {
+  font-size: 0.9rem;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+  padding-left: 2.25rem;
 }
 
 @media (max-width: 768px) {
-  .timeline-container {
-    padding-left: 0.5rem;
+  .modern-timeline-line {
+    left: 47px;
   }
   
-  .timeline-line {
-    left: 21px;
-  }
-
-  .timeline-day-divider {
-    margin-left: 44px;
+  .modern-time-col {
+    width: 48px;
   }
   
-  .timeline-item {
-    grid-template-columns: 44px 1fr;
-    gap: 0.5rem;
-  }
-
-  .timeline-dot-wrapper {
-    padding-top: 1rem;
+  .modern-timeline-item {
+    gap: 1rem;
   }
   
-  .timeline-dot {
-    width: 36px;
-    height: 36px;
+  .modern-desc {
+    padding-left: 0;
+    margin-top: 0.5rem;
   }
 }
 </style>
