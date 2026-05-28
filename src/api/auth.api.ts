@@ -67,6 +67,9 @@ const authApi = {
     api
       .post('/auth/password-recovery/reset', { email, code, newPassword })
       .then((r) => r.data),
+
+  adminChangePassword: (userId: number, newPassword: string): Promise<{ message: string }> =>
+    api.patch('/auth/admin/change-password', { userId, newPassword }).then((r) => r.data),
 }
 
 export default authApi
