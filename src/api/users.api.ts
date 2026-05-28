@@ -80,7 +80,7 @@ const usersApi = {
     api.get(`/usuarios/${idUsuario}`).then((r) => r.data),
 
   create: (dto: CreateUserDto): Promise<UserRecord> =>
-    api.post('/usuarios', dto).then((r) => r.data),
+    api.post('/auth/register', dto).then((r) => r.data),
 
   update: (idUsuario: number, dto: UpdateUserDto): Promise<UserRecord> =>
     api.patch(`/usuarios/${idUsuario}`, dto).then((r) => r.data),

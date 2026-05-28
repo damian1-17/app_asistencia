@@ -78,6 +78,10 @@
               <h2 class="section-title">Usuarios</h2>
               <p class="section-copy">Selecciona un usuario para inspeccionar y modificar sus roles.</p>
             </div>
+            <button class="btn btn-primary" type="button" @click="openCreateUserModal" id="btn-nuevo-usuario">
+              <AppIcon name="user-plus" size="16" />
+              <span>Nuevo usuario</span>
+            </button>
           </div>
 
           <div class="toolbar">
@@ -359,6 +363,90 @@
         </article>
       </section>
     </template>
+
+    <!-- ════════════════════════════════════════════════
+         MODAL — Crear Usuario
+    ════════════════════════════════════════════════ -->
+    <Teleport to="body">
+      <Transition name="modal-fade">
+        <div v-if="createUserModalOpen" class="modal-backdrop" @click.self="closeCreateUserModal" id="modal-create-user-backdrop">
+          <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="modal-user-title">
+
+            <div class="modal-header">
+              <div class="modal-scan-badge">
+                <AppIcon name="user" size="16" />
+                <span>Nuevo usuario</span>
+              </div>
+              <button class="modal-close" @click="closeCreateUserModal" id="btn-close-user-modal">
+                <AppIcon name="x" size="18" />
+              </button>
+            </div>
+
+            <h3 class="modal-title" id="modal-user-title">Crear nuevo usuario</h3>
+            <p class="modal-subtitle">Ingresa los datos del nuevo usuario para registrarlo en el sistema.</p>
+
+            <form @submit.prevent="submitCreateUserForm" id="form-create-user" class="modal-form">
+              <div class="form-group">
+                <label class="form-label" for="user-nombre">Nombre <span class="required">*</span></label>
+                <input
+                  id="user-nombre"
+                  v-model="createUserForm.nombre"
+                  class="form-input"
+                  placeholder="Ej: Juan Pérez"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="user-email">Correo electrónico <span class="required">*</span></label>
+                <input
+                  id="user-email"
+                  type="email"
+                  v-model="createUserForm.email"
+                  class="form-input"
+                  placeholder="Ej: juan.perez@epn.edu.ec"
+                  required
+                />
+              </div>
+
+              <div class="form-group">
+                <label class="form-label" for="user-password">Contraseña <span class="required">*</span></label>
+                <input
+                  id="user-password"
+                  type="password"
+                  v-model="createUserForm.password"
+                  class="form-input"
+                  placeholder="Min. 8 caracteres"
+                  minlength="8"
+                  required
+                />
+              </div>
+
+              <div v-if="createUserError" class="form-error-banner mt-sm">
+                <AppIcon name="warning" size="16" />
+                {{ createUserError }}
+              </div>
+
+              <div class="modal-actions">
+                <button type="button" class="btn btn-ghost" @click="closeCreateUserModal" :disabled="createUserLoading">
+                  Cancelar
+                </button>
+                <button type="submit" class="btn btn-primary" :disabled="createUserLoading">
+                  <span v-if="!createUserLoading">
+                    <AppIcon name="check-circle" size="16" />
+                    <span>Crear usuario</span>
+                  </span>
+                  <span v-else class="flex items-center gap-sm">
+                    <div class="spinner spinner-sm"></div>
+                    <span>Creando…</span>
+                  </span>
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </Transition>
+    </Teleport>
   </div>
 </template>
 
@@ -420,13 +508,66 @@ const pwdLoading = ref(false)
 const pwdError = ref('')
 const pwdSuccess = ref(false)
 
+const createUserModalOpen = ref(false)
+const createUserLoading = ref(false)
+const createUserError = ref('')
+const createUserForm = reactive({
+  nombre: '',
+  email: '',
+  password: '',
+})
+
+function openCreateUserModal() {
+  createUserForm.nombre = ''
+  createUserForm.email = ''
+  createUserForm.password = ''
+  createUserError.value = ''
+  createUserModalOpen.value = true
+}
+
+function closeCreateUserModal() {
+  createUserModalOpen.value = false
+}
+
+async function submitCreateUserForm() {
+  createUserLoading.value = true
+  createUserError.value = ''
+
+  try {
+    const newUser = await usersApi.create({
+      nombre: createUserForm.nombre,
+      email: createUserForm.email,
+      password: createUserForm.password,
+    })
+
+    // Añadir el usuario a la lista local
+    if (!newUser.roles) {
+      newUser.roles = []
+    }
+    users.value = [newUser, ...users.value]
+    usersMeta.value.total += 1
+    if (newUser.estado === 'activo') {
+      totalActiveUsers.value += 1
+    }
+    selectedUserId.value = newUser.idUsuario
+
+    closeCreateUserModal()
+    roleSuccess.value = `Usuario ${newUser.nombre} creado exitosamente.`
+  } catch (err: any) {
+    createUserError.value = err?.response?.data?.message ?? 'No fue posible crear el usuario.'
+  } finally {
+    createUserLoading.value = false
+  }
+}
+
 const confirmError = computed(() => pwdForm.confirm.length > 0 && pwdForm.confirm !== pwdForm.newPassword)
 
 function shortToken(token: string) {
   return token ? `${token.slice(0, 8)}...${token.slice(-4)}` : '-'
 }
 
-function normalizeRoles(userRoles: Array<string | RoleSummary>) {
+function normalizeRoles(userRoles?: Array<string | RoleSummary>) {
+  if (!userRoles) return []
   return userRoles.map((role, index) =>
     typeof role === 'string'
       ? { idRol: -(index + 1), nombre: role, descripcion: '' }
@@ -1003,5 +1144,131 @@ code {
   .user-row-side {
     justify-content: flex-start;
   }
+}
+
+/* ── Modal ─────────────────────────────────────────────────────────────────── */
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 9000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(4, 11, 22, 0.72);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.modal-panel {
+  position: relative;
+  width: 100%;
+  max-width: 520px;
+  border-radius: 1.75rem;
+  padding: 1.75rem;
+  background: linear-gradient(160deg, rgba(14, 26, 46, 0.98), rgba(7, 16, 30, 0.99));
+  border: 1px solid rgba(140, 223, 255, 0.14);
+  box-shadow:
+    0 40px 80px rgba(0, 0, 0, 0.55),
+    0 0 0 1px rgba(255, 255, 255, 0.04) inset;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.modal-scan-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.85rem;
+  border-radius: 99px;
+  background: rgba(0, 169, 224, 0.1);
+  border: 1px solid rgba(0, 169, 224, 0.2);
+  color: #8cdfff;
+  font-size: 0.74rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.modal-close {
+  width: 36px;
+  height: 36px;
+  border-radius: 0.75rem;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(255, 255, 255, 0.05);
+  color: var(--color-text-secondary);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all var(--transition-fast);
+}
+
+.modal-close:hover {
+  background: rgba(255, 255, 255, 0.1);
+  color: var(--color-text-primary);
+}
+
+.modal-title {
+  font-size: 1.25rem;
+  font-weight: 700;
+  letter-spacing: -0.03em;
+  margin-bottom: 0.25rem;
+}
+
+.modal-subtitle {
+  font-size: 0.85rem;
+  color: var(--color-text-secondary);
+  margin-bottom: 1.5rem;
+}
+
+.modal-form {
+  display: grid;
+  gap: 1rem;
+}
+
+.required {
+  color: #f59e0b;
+}
+
+.form-error-banner {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-radius: 0.85rem;
+  background: rgba(226, 0, 26, 0.1);
+  border: 1px solid rgba(226, 0, 26, 0.25);
+  color: #ff9ca7;
+  font-size: 0.86rem;
+}
+
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  margin-top: 1rem;
+}
+
+.modal-fade-enter-active,
+.modal-fade-leave-active {
+  transition: opacity 0.25s ease;
+}
+.modal-fade-enter-from,
+.modal-fade-leave-to {
+  opacity: 0;
+}
+.modal-fade-enter-active .modal-panel,
+.modal-fade-leave-active .modal-panel {
+  transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+.modal-fade-enter-from .modal-panel,
+.modal-fade-leave-to .modal-panel {
+  transform: scale(0.9) translateY(10px);
 }
 </style>
