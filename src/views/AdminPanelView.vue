@@ -208,6 +208,48 @@
                 <span>Restablecer seleccion</span>
               </button>
             </div>
+
+            <!-- 🔑 Restablecer Contraseña (Admin) -->
+            <div class="admin-password-reset-section" style="margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid rgba(255,255,255,0.08);">
+              <label class="selector-label">Restablecer Contraseña (Solo Admin)</label>
+              <div style="display: flex; gap: 0.75rem; margin-top: 0.5rem; align-items: flex-start;">
+                <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center; flex: 1;">
+                  <input
+                    v-model="adminResetPasswordVal"
+                    :type="showAdminResetPassword ? 'text' : 'password'"
+                    class="form-input"
+                    placeholder="Nueva contraseña"
+                    style="height: 38px; font-size: 0.85rem; padding-right: 2.5rem; width: 100%;"
+                    minlength="8"
+                    required
+                  />
+                  <button
+                    type="button"
+                    class="btn-toggle-password"
+                    @click="showAdminResetPassword = !showAdminResetPassword"
+                    style="position: absolute; right: 0.75rem; background: none; border: none; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"
+                  >
+                    <svg v-if="!showAdminResetPassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                  </button>
+                </div>
+                <button
+                  type="button"
+                  class="btn btn-secondary btn-sm"
+                  :disabled="adminResetPasswordLoading || adminResetPasswordVal.length < 8"
+                  @click="submitAdminResetPassword"
+                  style="height: 38px;"
+                >
+                  <span v-if="!adminResetPasswordLoading">Restablecer</span>
+                  <span v-else class="flex items-center gap-sm">
+                    <div class="spinner spinner-sm"></div>
+                  </span>
+                </button>
+              </div>
+              <p class="form-hint mt-xs" style="font-size: 0.72rem; color: var(--color-text-muted);">
+                Min. 8 caracteres. Se cerrarán las sesiones activas del usuario.
+              </p>
+            </div>
           </div>
 
           <p v-else class="empty-copy">Selecciona un usuario para asignar o reemplazar sus roles.</p>
@@ -411,15 +453,27 @@
 
               <div class="form-group">
                 <label class="form-label" for="user-password">Contraseña <span class="required">*</span></label>
-                <input
-                  id="user-password"
-                  type="password"
-                  v-model="createUserForm.password"
-                  class="form-input"
-                  placeholder="Min. 8 caracteres"
-                  minlength="8"
-                  required
-                />
+                <div class="password-input-wrapper" style="position: relative; display: flex; align-items: center;">
+                  <input
+                    id="user-password"
+                    :type="showCreatePassword ? 'text' : 'password'"
+                    v-model="createUserForm.password"
+                    class="form-input"
+                    placeholder="Min. 8 caracteres"
+                    minlength="8"
+                    required
+                    style="padding-right: 2.5rem; width: 100%;"
+                  />
+                  <button
+                    type="button"
+                    class="btn-toggle-password"
+                    @click="showCreatePassword = !showCreatePassword"
+                    style="position: absolute; right: 0.75rem; background: none; border: none; color: var(--color-text-secondary); cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 0;"
+                  >
+                    <svg v-if="!showCreatePassword" xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2.062 12.348a1 1 0 0 1 0-.696 10.75 10.75 0 0 1 19.876 0 1 1 0 0 1 0 .696 10.75 10.75 0 0 1-19.876 0z"/><circle cx="12" cy="12" r="3"/></svg>
+                    <svg v-else xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9.88 9.88a3 3 0 1 0 4.24 4.24"/><path d="M10.73 5.08A10.43 10.43 0 0 1 12 5c7 0 10 7 10 7a13.16 13.16 0 0 1-1.67 2.68"/><path d="M6.61 6.61A13.52 13.52 0 0 0 2 12s3 7 10 7a9.74 9.74 0 0 0 5.39-1.61"/><line x1="2" y1="2" x2="22" y2="22"/></svg>
+                  </button>
+                </div>
               </div>
 
               <div v-if="createUserError" class="form-error-banner mt-sm">
@@ -514,14 +568,16 @@ const createUserError = ref('')
 const createUserForm = reactive({
   nombre: '',
   email: '',
-  password: '',
+  password: 'Password123!',
 })
+const showCreatePassword = ref(false)
 
 function openCreateUserModal() {
   createUserForm.nombre = ''
   createUserForm.email = ''
-  createUserForm.password = ''
+  createUserForm.password = 'Password123!'
   createUserError.value = ''
+  showCreatePassword.value = false
   createUserModalOpen.value = true
 }
 
@@ -557,6 +613,30 @@ async function submitCreateUserForm() {
     createUserError.value = err?.response?.data?.message ?? 'No fue posible crear el usuario.'
   } finally {
     createUserLoading.value = false
+  }
+}
+
+const adminResetPasswordVal = ref('Password123!')
+const adminResetPasswordLoading = ref(false)
+const showAdminResetPassword = ref(false)
+
+async function submitAdminResetPassword() {
+  if (!selectedUser.value || adminResetPasswordVal.value.length < 8) return
+  adminResetPasswordLoading.value = true
+  roleSuccess.value = ''
+  loadError.value = ''
+
+  try {
+    const res = await authApi.adminChangePassword(
+      selectedUser.value.idUsuario,
+      adminResetPasswordVal.value
+    )
+    roleSuccess.value = res.message || `Contraseña de ${selectedUser.value.nombre} restablecida exitosamente.`
+    adminResetPasswordVal.value = 'Password123!'
+  } catch (err: any) {
+    loadError.value = err?.response?.data?.message ?? 'No fue posible restablecer la contraseña.'
+  } finally {
+    adminResetPasswordLoading.value = false
   }
 }
 
@@ -733,6 +813,8 @@ async function changePassword() {
 
 watch(selectedUserId, () => {
   syncSelectedRoles()
+  adminResetPasswordVal.value = 'Password123!'
+  showAdminResetPassword.value = false
 })
 
 onMounted(reloadAdminData)
