@@ -92,16 +92,23 @@ const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
 const userEmail = computed(() => authStore.user?.email ?? 'Sin email')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 const isAdmin = computed(() => authStore.isAdmin)
+const isModerator = computed(() => authStore.isModerator)
 
 const navLinks = computed(() => {
   const links = [
     { to: '/dashboard/mis-qrs', icon: 'qr', label: 'Mis QRs', id: 'mis-qrs' },
-    { to: '/dashboard/agenda', icon: 'calendar', label: 'Agenda del evento', id: 'agenda' },
   ]
+
+  if (!isModerator.value) {
+    links.push({ to: '/dashboard/agenda', icon: 'calendar', label: 'Agenda del evento', id: 'agenda' })
+  }
 
   if (isAdmin.value) {
     links.push({ to: '/dashboard/admin', icon: 'shield', label: 'Panel admin', id: 'admin' })
     links.push({ to: '/dashboard/admin/qr', icon: 'qr', label: 'Gestión QR', id: 'admin-qr' })
+  }
+
+  if (isAdmin.value || isModerator.value) {
     links.push({ to: '/dashboard/admin/escaner', icon: 'qr', label: 'Escaner QR', id: 'admin-scan' })
   }
 
