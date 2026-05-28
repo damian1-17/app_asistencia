@@ -22,6 +22,9 @@ export const useAuthStore = defineStore('auth', () => {
   const isAdmin = computed(() =>
     roleNames.value.some((r) => ['admin', 'administrador'].includes(r)),
   )
+  const isModerator = computed(() =>
+    roleNames.value.includes('moderator'),
+  )
 
   /** Nombre para mostrar en UI */
   const displayRoles = computed(() =>
@@ -77,6 +80,7 @@ export const useAuthStore = defineStore('auth', () => {
     isAuthenticated,
     isUser,
     isAdmin,
+    isModerator,
     displayRoles,
     initialize,
     login,

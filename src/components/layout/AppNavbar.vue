@@ -16,9 +16,9 @@
         <li><RouterLink to="/#cronograma" class="nav-link">Cronograma</RouterLink></li>
         <template v-if="isAuthenticated">
           <li><RouterLink to="/dashboard/mis-qrs" class="nav-link" active-class="nav-link-active">Mis QRs</RouterLink></li>
-          <li><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
+          <li v-if="!isModerator"><RouterLink to="/dashboard/agenda" class="nav-link" active-class="nav-link-active">Agenda</RouterLink></li>
           <li v-if="isAdmin"><RouterLink to="/dashboard/admin" class="nav-link" active-class="nav-link-active">Admin</RouterLink></li>
-          <li v-if="isAdmin"><RouterLink to="/dashboard/admin/escaner" class="nav-link" active-class="nav-link-active">Escaner</RouterLink></li>
+          <li v-if="isAdmin || isModerator"><RouterLink to="/dashboard/admin/escaner" class="nav-link" active-class="nav-link-active">Escaner</RouterLink></li>
         </template>
       </ul>
 
@@ -48,7 +48,7 @@
                 <AppIcon name="shield" size="16" />
                 <span>Panel admin</span>
               </RouterLink>
-              <RouterLink v-if="isAdmin" to="/dashboard/admin/escaner" class="dropdown-item" role="menuitem" @click="closeMenus">
+              <RouterLink v-if="isAdmin || isModerator" to="/dashboard/admin/escaner" class="dropdown-item" role="menuitem" @click="closeMenus">
                 <AppIcon name="qr" size="16" />
                 <span>Escaner QR</span>
               </RouterLink>
@@ -81,7 +81,7 @@
             <AppIcon name="qr" size="18" />
             <span>Mis QRs</span>
           </RouterLink>
-          <RouterLink to="/dashboard/agenda" class="mobile-link" @click="closeMenus">
+          <RouterLink v-if="!isModerator" to="/dashboard/agenda" class="mobile-link" @click="closeMenus">
             <AppIcon name="calendar" size="18" />
             <span>Agenda</span>
           </RouterLink>
@@ -89,7 +89,7 @@
             <AppIcon name="shield" size="18" />
             <span>Panel admin</span>
           </RouterLink>
-          <RouterLink v-if="isAdmin" to="/dashboard/admin/escaner" class="mobile-link" @click="closeMenus">
+          <RouterLink v-if="isAdmin || isModerator" to="/dashboard/admin/escaner" class="mobile-link" @click="closeMenus">
             <AppIcon name="qr" size="18" />
             <span>Escaner QR</span>
           </RouterLink>
@@ -123,6 +123,7 @@ const router = useRouter()
 
 const isAuthenticated = computed(() => authStore.isAuthenticated)
 const isAdmin = computed(() => authStore.isAdmin)
+const isModerator = computed(() => authStore.isModerator)
 const userName = computed(() => authStore.user?.nombre ?? 'Usuario')
 const userInitial = computed(() => userName.value.charAt(0).toUpperCase())
 

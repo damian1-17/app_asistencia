@@ -55,7 +55,7 @@ const router = createRouter({
           path: 'agenda',
           name: 'agenda',
           component: () => import('@/views/AgendaView.vue'),
-          meta: { requiresAuth: true },
+          meta: { requiresAuth: true, excludeModerator: true },
         },
         {
           path: 'admin',
@@ -67,7 +67,7 @@ const router = createRouter({
           path: 'admin/escaner',
           name: 'admin-scan',
           component: () => import('@/views/AdminScanView.vue'),
-          meta: { requiresAuth: true, requiresAdmin: true },
+          meta: { requiresAuth: true, requiresAdminOrModerator: true },
         },
         {
           path: 'admin/qr',
@@ -106,6 +106,14 @@ router.beforeEach(async (to) => {
   }
 
   if (to.meta.requiresAdmin && !authStore.isAdmin) {
+    return { name: 'mis-qrs' }
+  }
+
+  if (to.meta.requiresAdminOrModerator && !authStore.isAdmin && !authStore.isModerator) {
+    return { name: 'mis-qrs' }
+  }
+
+  if (to.meta.excludeModerator && authStore.isModerator) {
     return { name: 'mis-qrs' }
   }
 
