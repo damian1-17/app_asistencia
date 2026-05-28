@@ -101,30 +101,6 @@
       </div>
     </section>
 
-    <section class="feature-section">
-      <div class="container feature-layout">
-        <div class="feature-intro">
-          <span class="section-kicker">Capacidades</span>
-          <h2 class="section-title">Todo lo necesario para una operacion ordenada.</h2>
-          <p>
-            La interfaz prioriza lectura, estados claros y acciones directas para que
-            el acceso al evento no se sienta improvisado.
-          </p>
-        </div>
-
-        <div class="feature-grid">
-          <article v-for="feature in features" :key="feature.title" class="feature-card">
-            <div class="feature-icon">
-              <AppIcon :name="feature.icon" size="18" />
-            </div>
-            <div>
-              <h3>{{ feature.title }}</h3>
-              <p>{{ feature.desc }}</p>
-            </div>
-          </article>
-        </div>
-      </div>
-    </section>
 
 
     <section class="partners-section">
