@@ -90,7 +90,7 @@
                 placeholder="Buscar por nombre o email"
               />
             </div>
-            <span class="results-copy">{{ filteredUsers.length }} resultado{{ filteredUsers.length === 1 ? '' : 's' }}</span>
+            <span class="results-copy">{{ usersMeta.total }} resultado{{ usersMeta.total === 1 ? '' : 's' }}</span>
           </div>
 
           <div class="user-list" v-if="filteredUsers.length">
@@ -113,6 +113,31 @@
             </button>
           </div>
           <p v-else class="empty-copy">No hay usuarios que coincidan con la busqueda actual.</p>
+
+          <!-- Paginated Controls -->
+          <div class="pagination-controls" v-if="usersMeta.totalPages > 1">
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              :disabled="!usersMeta.hasPreviousPage"
+              @click="changePage(usersMeta.page - 1)"
+            >
+              <AppIcon name="chevron-left" size="14" />
+              <span>Anterior</span>
+            </button>
+            <span class="page-indicator">
+              Página {{ usersMeta.page }} de {{ usersMeta.totalPages }}
+            </span>
+            <button
+              type="button"
+              class="btn btn-secondary btn-sm"
+              :disabled="!usersMeta.hasNextPage"
+              @click="changePage(usersMeta.page + 1)"
+            >
+              <span>Siguiente</span>
+              <AppIcon name="chevron-right" size="14" />
+            </button>
+          </div>
         </article>
 
         <article class="card assignment-panel">
@@ -339,6 +364,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, reactive, ref, watch } from 'vue'
+import { watchDebounced } from '@vueuse/core'
 import { useAuthStore } from '@/stores/auth.store'
 import authApi from '@/api/auth.api'
 import usersApi, { type RoleSummary, type UserRecord, type UsersMeta } from '@/api/users.api'
@@ -369,26 +395,21 @@ const selectedRoleIds = ref<number[]>([])
 
 const usersMeta = ref<UsersMeta>({
   page: 1,
-  limit: 8,
+  limit: 10,
   total: 0,
   totalPages: 0,
   hasNextPage: false,
   hasPreviousPage: false,
 })
 
-const activeUsers = computed(() => users.value.filter((item) => item.estado?.toLowerCase() === 'activo').length)
+const totalActiveUsers = ref(0)
+
+const activeUsers = computed(() => totalActiveUsers.value)
 const rolesWithPermissions = computed(() => roles.value.filter((item) => (item.permisos?.length ?? 0) > 0).length)
 const activeQrTypes = computed(() => qrTypes.value.filter((item) => item.activo).length)
 const usedAssignments = computed(() => assignments.value.filter((item) => item.usado || item.estado?.toLowerCase() === 'usado').length)
 
-const filteredUsers = computed(() => {
-  const query = userSearch.value.trim().toLowerCase()
-  if (!query) return users.value
-
-  return users.value.filter((item) =>
-    item.nombre.toLowerCase().includes(query) || item.email.toLowerCase().includes(query),
-  )
-})
+const filteredUsers = computed(() => users.value)
 
 const selectedUser = computed(() =>
   users.value.find((item) => item.idUsuario === selectedUserId.value) ?? null,
@@ -447,16 +468,58 @@ function statusBadge(status: string) {
   return 'badge-accent'
 }
 
+async function fetchUsersPage(pageNumber = 1) {
+  try {
+    const res = await usersApi.list({
+      page: pageNumber,
+      limit: 10,
+      search: userSearch.value.trim(),
+      sortBy: 'createdAt',
+      sortOrder: 'DESC',
+    })
+    users.value = res.data
+    usersMeta.value = res.meta
+
+    if (!selectedUserId.value || !users.value.some((item) => item.idUsuario === selectedUserId.value)) {
+      selectedUserId.value = users.value[0]?.idUsuario ?? null
+    }
+  } catch (err: any) {
+    loadError.value = err?.response?.data?.message ?? 'No fue posible cargar la lista de usuarios.'
+  }
+}
+
+async function changePage(newPage: number) {
+  if (newPage < 1 || newPage > usersMeta.value.totalPages) return
+  usersMeta.value.page = newPage
+  await fetchUsersPage(newPage)
+}
+
+watchDebounced(
+  userSearch,
+  async () => {
+    usersMeta.value.page = 1
+    await fetchUsersPage(1)
+  },
+  { debounce: 300 }
+)
+
 async function reloadAdminData() {
   refreshing.value = true
   loadError.value = ''
 
   try {
-    const [usersRes, rolesRes, qrTypesRes, assignmentsRes] = await Promise.all([
-      usersApi.list({ page: 1, limit: 12, sortBy: 'createdAt', sortOrder: 'DESC' }),
+    const [usersRes, rolesRes, qrTypesRes, assignmentsRes, activeUsersRes] = await Promise.all([
+      usersApi.list({
+        page: usersMeta.value.page,
+        limit: 10,
+        search: userSearch.value.trim(),
+        sortBy: 'createdAt',
+        sortOrder: 'DESC',
+      }),
       rolesApi.list(),
       qrApi.listTipos(),
       qrApi.listAssignments(),
+      usersApi.list({ limit: 1, estado: 'activo' }),
     ])
 
     users.value = usersRes.data
@@ -464,6 +527,7 @@ async function reloadAdminData() {
     roles.value = rolesRes
     qrTypes.value = qrTypesRes
     assignments.value = assignmentsRes
+    totalActiveUsers.value = activeUsersRes.meta.total
 
     if (!selectedUserId.value || !users.value.some((item) => item.idUsuario === selectedUserId.value)) {
       selectedUserId.value = users.value[0]?.idUsuario ?? null
@@ -878,6 +942,21 @@ onMounted(reloadAdminData)
 code {
   font-family: 'Courier New', monospace;
   color: #8cdfff;
+}
+
+.pagination-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.page-indicator {
+  font-size: var(--font-size-sm);
+  color: var(--color-text-secondary);
+  font-weight: 500;
 }
 
 @media (max-width: 1100px) {
