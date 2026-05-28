@@ -26,6 +26,9 @@
     <template v-else-if="name === 'chevron-left'">
       <path d="m15 18-6-6 6-6" />
     </template>
+    <template v-else-if="name === 'chevron-right'">
+      <path d="m9 18 6-6-6-6" />
+    </template>
     <template v-else-if="name === 'clipboard'">
       <rect x="7" y="5" width="10" height="14" rx="2" />
       <path d="M9 5.5h6M9.5 3h5a1.5 1.5 0 0 1 1.5 1.5v1h-8v-1A1.5 1.5 0 0 1 9.5 3Z" />
