@@ -71,7 +71,7 @@ const authStore = useAuthStore()
 const qrStore = useQrStore()
 const error = ref('')
 
-const misQrs = computed(() => qrStore.misQrs)
+const misQrs = computed(() => qrStore.misQrs.filter((qr) => qr.tipoQr?.activo !== false))
 const qrsDisponibles = computed(() => misQrs.value.filter((qr) => !qr.usado && qr.activo).length)
 const qrsUsados = computed(() => misQrs.value.filter((qr) => qr.usado).length)
 
