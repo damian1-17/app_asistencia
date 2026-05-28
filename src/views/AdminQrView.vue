@@ -802,8 +802,8 @@
 
             <!-- Expiración -->
             <div class="form-group" style="margin-top: 1rem;">
-              <label class="form-label">Fecha de expiración conjunta (Opcional)</label>
-              <input type="datetime-local" v-model="assignBatchForm.expiracion" class="form-input" />
+              <label class="form-label">Fecha de expiración conjunta <span class="required">*</span></label>
+              <input type="datetime-local" v-model="assignBatchForm.expiracion" class="form-input" required />
             </div>
             
             <div v-if="assignBatchFormError" class="form-error-banner mt-sm">
@@ -812,7 +812,7 @@
 
             <div class="modal-actions" style="margin-top: 1rem;">
               <button type="button" class="btn btn-ghost" @click="closeAssignBatchModal" :disabled="assignBatchFormLoading">Cancelar</button>
-              <button type="submit" class="btn btn-primary" :disabled="assignBatchFormLoading || batchUsers.length === 0 || assignBatchForm.idTiposQr.length === 0">
+              <button type="submit" class="btn btn-primary" :disabled="assignBatchFormLoading || batchUsers.length === 0 || assignBatchForm.idTiposQr.length === 0 || !assignBatchForm.expiracion">
                 <span v-if="!assignBatchFormLoading">
                   <AppIcon name="check-circle" size="16" /> <span>Asignar Lote</span>
                 </span>
@@ -1303,7 +1303,7 @@ function removeBatchUser(idUsuario: number) {
 }
 
 async function submitAssignBatchForm() {
-  if (batchUsers.value.length === 0 || assignBatchForm.idTiposQr.length === 0) return
+  if (batchUsers.value.length === 0 || assignBatchForm.idTiposQr.length === 0 || !assignBatchForm.expiracion) return
   
   assignBatchFormLoading.value = true
   assignBatchFormError.value = ''
@@ -1311,11 +1311,8 @@ async function submitAssignBatchForm() {
   try {
     const payload: any = {
       idUsuarios: batchUsers.value.map(u => u.idUsuario),
-      idTiposQr: assignBatchForm.idTiposQr
-    }
-    
-    if (assignBatchForm.expiracion) {
-      payload.expiracion = new Date(assignBatchForm.expiracion).toISOString()
+      idTiposQr: assignBatchForm.idTiposQr,
+      expiracion: new Date(assignBatchForm.expiracion).toISOString()
     }
     
     const res = await qrApi.assignBatch(payload)
