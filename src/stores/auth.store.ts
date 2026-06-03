@@ -48,6 +48,7 @@ export const useAuthStore = defineStore('auth', () => {
     try {
       const res = await authApi.login({ email, password })
       user.value = res.user
+      initialized.value = true // ← evita que el guard llame /auth/check tras login exitoso
       return res
     } finally {
       loading.value = false
